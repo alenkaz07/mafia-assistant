@@ -30,11 +30,14 @@ a {
 }
 
 .main-nav a {
+  display: inline-block;
   margin: 0 16px;
   font-size: 15px;
   position: relative;
   padding-bottom: 2px;
-  transition: color 0.15s ease;
+  transition:
+    color 0.15s ease,
+    transform 0.15s ease;
 }
 
 .main-nav a::after {
@@ -50,6 +53,7 @@ a {
 
 .main-nav a:hover {
   color: #ffffff;
+  transform: scale(1.08);
 }
 
 .main-nav a:hover::after {
@@ -99,6 +103,18 @@ a {
   font-size: 14px;
 }
 
+.hero-slides {
+  position: relative;
+}
+
+.hero-slide {
+  display: none;
+}
+
+.hero-slide-active {
+  display: block;
+}
+
 .hero-dots {
   margin-top: 24px;
 }
@@ -110,11 +126,13 @@ a {
   border-radius: 50%;
   background: #666;
   margin-right: 6px;
+  cursor: pointer;
 }
 
 .dot-active {
   background: #e53935;
 }
+
 
 /* Карточки */
 .cards-grid {

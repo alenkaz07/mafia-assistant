@@ -2,16 +2,35 @@
 
 {% block content %}
 <section class="hero">
-    <div class="hero-text">
-        <h1>Запишись на турнир</h1>
-        <p>Ближайшая игра: 25.12 в 16:00 · аудитория 310</p>
-        <button class="btn-primary">Записаться на турнир</button>
-    </div>
-    <div class="hero-dots">
-        <span class="dot dot-active"></span>
-        <span class="dot"></span>
-        <span class="dot"></span>
-    </div>
+  <div class="hero-slides">
+      <div class="hero-slide hero-slide-active">
+          <div class="hero-text">
+              <h1>Запишись на турнир</h1>
+              <p>Ближайшая игра: 25.12 в 16:00 · аудитория 310</p>
+              <button class="btn-primary">Записаться на турнир</button>
+          </div>
+      </div>
+      <div class="hero-slide">
+          <div class="hero-text">
+              <h1>Статистика по сессиям</h1>
+              <p>Всего сыграно {{ sessions_count }} сессий</p>
+              <button class="btn-primary">Открыть список сессий</button>
+          </div>
+      </div>
+      <div class="hero-slide">
+          <div class="hero-text">
+              <h1>Кто чаще побеждает?</h1>
+              <p>Мирные: {{ town_wins }} · Мафия: {{ mafia_wins }}</p>
+              <button class="btn-primary">Посмотреть детали</button>
+          </div>
+      </div>
+  </div>
+
+  <div class="hero-dots">
+      <span class="dot hero-dot dot-active"></span>
+      <span class="dot hero-dot"></span>
+      <span class="dot hero-dot"></span>
+  </div>
 </section>
 
 <section class="cards-grid">
