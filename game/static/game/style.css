@@ -152,11 +152,11 @@ a {
   transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
-.stat-card:hover {
+/* .stat-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
   border-color: #e53935;
-}
+} */
 
 .stat-card h2 {
   margin-top: 0;
