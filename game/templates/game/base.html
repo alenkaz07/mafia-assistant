@@ -10,11 +10,11 @@
 <header class="topbar">
     <div class="logo">MAFIA</div>
     <nav class="main-nav">
-        <a href="#">Главная</a>
-        <a href="#">Правила игры</a>
-        <a href="#">Роли</a>
-        <a href="#">Режимы</a>
-        <a href="#">Турниры</a>
+        <a href="{% url 'game:index' %}">Главная</a>
+        <a href="{% url 'game:rules' %}">Правила игры</a>
+        <a href="{% url 'game:roles' %}">Роли</a>
+        <a href="{% url 'game:modes' %}">Режимы</a>
+        <a href="{% url 'game:sessions_list' %}">Турниры</a>
     </nav>
     <div class="user-block">
         <span>Алёна</span>
@@ -29,8 +29,8 @@
 <footer class="footer">
   <div>© 2025 Казарина Алёна Алексеевна</div>
   <div class="footer-links">
-      <a href="#">Главная</a> |
-      <a href="#">Карта сайта</a>
+      <a href="{% url 'game:index' %}">Главная</a> |
+      <a href="{% url 'game:sitemap' %}">Карта сайта</a>
   </div>
 </footer>
 <script src="{% static 'game/main.js' %}"></script>

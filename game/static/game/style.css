@@ -235,3 +235,27 @@ a {
 .footer-links {
   margin-top: 4px;
 }
+
+
+
+.sessions-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 24px;
+  font-size: 14px;
+}
+
+.sessions-table th,
+.sessions-table td {
+  border: 1px solid #333;
+  padding: 8px 12px;
+}
+
+.sessions-table th {
+  background: #262626;
+  text-align: left;
+}
+
+.sessions-table tr:nth-child(even) {
+  background: #1b1b1b;
+}

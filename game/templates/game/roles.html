@@ -1,0 +1,15 @@
+{% extends 'game/base.html' %}
+
+{% block content %}
+  <h1>Роли</h1>
+  <div class="cards-grid">
+    {% for role in roles %}
+      <article class="stat-card">
+        <h2>{{ role.name }}</h2>
+        <p>{{ role.description }}</p>
+      </article>
+    {% empty %}
+      <p>Роли пока не добавлены.</p>
+    {% endfor %}
+  </div>
+{% endblock %}

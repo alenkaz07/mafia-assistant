@@ -1,0 +1,32 @@
+{% extends 'game/base.html' %}
+
+{% block content %}
+  <h1>Игровые сессии</h1>
+
+  {% if sessions %}
+    <table class="sessions-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Режим</th>
+          <th>Статус</th>
+          <th>Игроков</th>
+          <th>Создана</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in sessions %}
+          <tr>
+            <td>{{ s.id }}</td>
+            <td>{{ s.mode.name }}</td>
+            <td>{{ s.status }}</td>
+            <td>{{ s.players_count }}</td>
+            <td>{{ s.created_at }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>Сессий пока нет.</p>
+  {% endif %}
+{% endblock %}

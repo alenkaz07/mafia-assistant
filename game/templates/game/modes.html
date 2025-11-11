@@ -1,0 +1,16 @@
+{% extends 'game/base.html' %}
+
+{% block content %}
+  <h1>Режимы игры</h1>
+  <div class="cards-grid">
+    {% for mode in modes %}
+      <article class="stat-card">
+        <h2>{{ mode.name }}</h2>
+        <p>{{ mode.description }}</p>
+        <p>{{ mode.min_players }}–{{ mode.max_players }} игроков</p>
+      </article>
+    {% empty %}
+      <p>Режимы пока не добавлены.</p>
+    {% endfor %}
+  </div>
+{% endblock %}
