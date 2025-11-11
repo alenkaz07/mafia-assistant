@@ -10,33 +10,36 @@ a {
   text-decoration: none;
 }
 
+/* Шапка */
 .topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 12px 48px;
-  background: #333;
+  background: #3c3c3c;
 }
 
 .logo {
   font-weight: 700;
   letter-spacing: 4px;
+  font-size: 22px;
 }
 
 .main-nav a {
-  margin: 0 12px;
-  font-size: 14px;
+  margin: 0 16px;
+  font-size: 15px;
 }
 
 .user-block {
   display: flex;
   align-items: center;
   gap: 8px;
+  font-size: 14px;
 }
 
 .user-icon {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   border: 2px solid #f5f5f5;
   display: flex;
@@ -44,21 +47,28 @@ a {
   justify-content: center;
 }
 
+/* Контент */
 .page-content {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 32px auto 64px;
 }
 
+/* Баннер */
 .hero {
   background: #000;
-  padding: 32px;
+  padding: 32px 40px;
   border-radius: 4px;
   position: relative;
 }
 
 .hero-text h1 {
-  margin-top: 0;
-  margin-bottom: 8px;
+  margin: 0 0 12px;
+  font-size: 28px;
+}
+
+.hero-text p {
+  margin: 0;
+  font-size: 14px;
 }
 
 .hero-dots {
@@ -78,6 +88,7 @@ a {
   background: #e53935;
 }
 
+/* Карточки */
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -87,11 +98,23 @@ a {
 
 .stat-card {
   background: #000;
-  padding: 24px;
+  padding: 24px 16px;
   border-radius: 4px;
   text-align: center;
 }
 
+.stat-card h2 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 18px;
+}
+
+.stat-card p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Кнопки */
 .btn-primary,
 .btn-secondary {
   border: none;
@@ -112,11 +135,20 @@ a {
   color: #fff;
 }
 
+/* Футер */
 .footer {
-  background: #333;
+  background: #3c3c3c;
   color: #ccc;
-  padding: 16px 48px;
+  padding: 16px 64px;
   font-size: 12px;
+
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: center;
+  /* justify-content: center; */
+  text-align: center;
+}
+
+.footer-links {
+  margin-top: 4px;
 }
