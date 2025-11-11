@@ -1,0 +1,54 @@
+{% extends 'game/base.html' %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-text">
+        <h1>Запишись на турнир</h1>
+        <p>Ближайшая игра: 25.12 в 16:00 · аудитория 310</p>
+        <button class="btn-primary">Записаться на турнир</button>
+    </div>
+    <div class="hero-dots">
+        <span class="dot dot-active"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+    </div>
+</section>
+
+<section class="cards-grid">
+    <article class="stat-card">
+        <h2>Сессии</h2>
+        <p>{{ sessions_count }} сессий сыграно</p>
+        <button class="btn-secondary">Перейти</button>
+    </article>
+
+    <article class="stat-card">
+        <h2>Побед мирных</h2>
+        <p>{{ town_wins }} раз выиграли мирные</p>
+        <button class="btn-secondary">Перейти</button>
+    </article>
+
+    <article class="stat-card">
+        <h2>Побед мафий</h2>
+        <p>{{ mafia_wins }} раз выиграла мафия</p>
+        <button class="btn-secondary">Перейти</button>
+    </article>
+
+    <article class="stat-card">
+        <h2>Сессии</h2>
+        <p>{{ sessions_count }} сессий сыграно</p>
+        <button class="btn-secondary">Перейти</button>
+    </article>
+
+    <article class="stat-card">
+        <h2>Сессии</h2>
+        <p>{{ sessions_count }} сессий сыграно</p>
+        <button class="btn-secondary">Перейти</button>
+    </article>
+
+    <article class="stat-card">
+        <h2>Сессии</h2>
+        <p>{{ sessions_count }} сессий сыграно</p>
+        <button class="btn-secondary">Перейти</button>
+    </article>
+</section>
+{% endblock %}

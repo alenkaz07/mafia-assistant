@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Мафия-ассистент</title>
+    <link rel="stylesheet" href="{% static 'game/style.css' %}">
+</head>
+<body>
+<header class="topbar">
+    <div class="logo">MAFIA</div>
+    <nav class="main-nav">
+        <a href="#">Главная</a>
+        <a href="#">Правила игры</a>
+        <a href="#">Роли</a>
+        <a href="#">Режимы</a>
+        <a href="#">Турниры</a>
+    </nav>
+    <div class="user-block">
+        <span>Алёна</span>
+        <div class="user-icon">👤</div>
+    </div>
+</header>
+
+<main class="page-content">
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+    <div>© 2025 Казарина Алёна Алексеевна</div>
+    <div class="footer-links">
+        <a href="#">Главная</a> |
+        <a href="#">Карта сайта</a>
+    </div>
+</footer>
+</body>
+</html>
