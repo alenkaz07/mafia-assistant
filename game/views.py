@@ -1,12 +1,12 @@
 from django.shortcuts import render
-from .models import Sessions, Results
+from .models import Session, Result
 
 # Create your views here.
 
 def index(request):
-    sessions_count = Sessions.objects.count()
-    mafia_wins = Results.objects.filter(winner_side='mafia').count()
-    town_wins = Results.objects.filter(winner_side='town').count()
+    sessions_count = Session.objects.count()
+    mafia_wins = Result.objects.filter(winner_side='mafia').count()
+    town_wins = Result.objects.filter(winner_side='town').count()
 
     context = {
         'sessions_count': sessions_count,
