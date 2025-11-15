@@ -1,0 +1,46 @@
+{% extends 'game/base.html' %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumbs">
+    <a href="{% url 'game:index' %}" class="crumb">Главная</a>
+    <span class="crumb-sep">/</span>
+
+    <a href="{% url 'game:host_sessions' %}" class="crumb">Кабинет ведущего</a>
+    <span class="crumb-sep">/</span>
+
+    <a href="{% url 'game:session_manage' session.id %}" class="crumb">
+        Сессия #{{ session.id }}
+    </a>
+    <span class="crumb-sep">/</span>
+
+    <span class="crumb crumb-active">Добавление игрока</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+  <h1 class="page-title">Добавление игрока</h1>
+  <p class="page-subtitle">
+      Сессия #{{ session.id }} ({{ session.mode.name }})
+  </p>
+
+  <section class="form-section">
+      <div class="form-card">
+          <form method="post" class="mafia-form">
+              {% csrf_token %}
+              {% for field in form %}
+                  <div class="form-row">
+                      <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+                      {{ field }}
+                      {% if field.errors %}
+                          <div class="form-error">
+                              {{ field.errors }}
+                          </div>
+                      {% endif %}
+                  </div>
+              {% endfor %}
+
+              <button type="submit" class="btn-primary">Сохранить</button>
+          </form>
+      </div>
+  </section>
+{% endblock %}

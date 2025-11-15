@@ -8,13 +8,44 @@
 </head>
 <body>
 <header class="topbar">
-    <div class="logo">MAFIA</div>
+    <a href="{% url 'game:index' %}" class="logo">
+        MAFIA
+    </a>
     <nav class="main-nav">
-        <a href="{% url 'game:index' %}">Главная</a>
-        <a href="{% url 'game:rules' %}">Правила игры</a>
-        <a href="{% url 'game:roles' %}">Роли</a>
-        <a href="{% url 'game:modes' %}">Режимы</a>
-        <a href="{% url 'game:sessions_list' %}">Турниры</a>
+        {% with request.resolver_match.url_name as url_name %}
+            <a href="{% url 'game:index' %}"
+               class="{% if url_name == 'index' %}nav-link-active{% endif %}">
+                Главная
+            </a>
+
+            <a href="{% url 'game:rules' %}"
+               class="{% if url_name == 'rules' %}nav-link-active{% endif %}">
+                Правила игры
+            </a>
+
+            <a href="{% url 'game:roles' %}"
+               class="{% if url_name == 'roles' %}nav-link-active{% endif %}">
+                Роли
+            </a>
+
+            <a href="{% url 'game:modes' %}"
+               class="{% if url_name == 'modes' %}nav-link-active{% endif %}">
+                Режимы
+            </a>
+
+            <a href="{% url 'game:sessions_list' %}"
+               class="{% if url_name == 'sessions_list' %}nav-link-active{% endif %}">
+                Турниры
+            </a>
+
+            <a href="{% url 'game:host_sessions' %}"
+               class="{% if url_name in 'host_sessions session_create session_manage player_add' %}
+                        nav-link-active
+                      {% endif %}">
+                Кабинет ведущего
+            </a>
+        {% endwith %}
+    </nav>
     </nav>
     <div class="user-block">
         <span>Алёна</span>
@@ -23,6 +54,7 @@
 </header>
 
 <main class="page-content">
+    {% block breadcrumbs %}{% endblock %}
     {% block content %}{% endblock %}
 </main>
 

@@ -1,15 +1,49 @@
 {% extends 'game/base.html' %}
 
+{% block breadcrumbs %}
+<nav class="breadcrumbs">
+    <a href="{% url 'game:index' %}" class="crumb">Главная</a>
+    <span class="crumb-sep">/</span>
+    <span class="crumb crumb-active">Роли</span>
+</nav>
+{% endblock %}
+
 {% block content %}
-  <h1>Роли</h1>
-  <div class="cards-grid">
+  <h1 class="page-title">Роли</h1>
+  <p class="page-subtitle">
+      Список ролей для игры «Мафия».
+  </p>
+
+  <div class="role-grid">
     {% for role in roles %}
-      <article class="stat-card">
-        <h2>{{ role.name }}</h2>
-        <p>{{ role.description }}</p>
+      <article class="role-card" data-role-card>
+        <h2 class="role-card-title">{{ role.name }}</h2>
+        <p class="role-card-label">Описание:</p>
+        <p class="role-card-excerpt">
+          {{ role.description|truncatechars:160 }}
+        </p>
+        <div class="role-card-full" hidden>
+          {{ role.description|linebreaksbr }}
+        </div>
+        <button type="button" class="card-more-btn">
+          Читать далее
+          <span class="card-more-arrow">→</span>
+        </button>
       </article>
     {% empty %}
       <p>Роли пока не добавлены.</p>
     {% endfor %}
+  </div>
+
+  <div class="role-modal-backdrop" id="role-modal">
+    <div class="role-modal">
+      <button type="button" class="role-modal-close" id="role-modal-close">×</button>
+      <h2 class="role-modal-title" id="role-modal-title"></h2>
+
+      <div class="role-modal-body">
+        <p class="role-modal-label">Описание:</p>
+        <div class="role-modal-text" id="role-modal-text"></div>
+      </div>
+    </div>
   </div>
 {% endblock %}

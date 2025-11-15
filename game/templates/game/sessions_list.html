@@ -1,7 +1,15 @@
 {% extends 'game/base.html' %}
 
+{% block breadcrumbs %}
+<nav class="breadcrumbs">
+    <a href="{% url 'game:index' %}" class="crumb">Главная</a>
+    <span class="crumb-sep">/</span>
+    <span class="crumb crumb-active">Турниры</span>
+</nav>
+{% endblock %}
+
 {% block content %}
-  <h1>Игровые сессии</h1>
+  <h1 class="page-title">Игровые сессии</h1>
 
   {% if sessions %}
     <table class="sessions-table">

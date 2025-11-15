@@ -1,0 +1,68 @@
+{% extends 'game/base.html' %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumbs">
+    <a href="{% url 'game:index' %}" class="crumb">Главная</a>
+    <span class="crumb-sep">/</span>
+    <a href="{% url 'game:host_sessions' %}" class="crumb">Кабинет ведущего</a>
+    <span class="crumb-sep">/</span>
+    <span class="crumb crumb-active">Сессия #{{ session.id }}</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+  <!-- заголовок  (панель ведущего) -->
+  <h1 class="page-title">
+    Сессия #{{ session.id }} ({{ session.mode.name }})
+  </h1>
+  <p class="page-subtitle">
+    Статус: {{ session.get_status_display }} · Игроков: {{ session.players.count }}
+  </p>
+
+  {% if players %}
+    <table class="sessions-table">
+      <thead>
+        <tr>
+          <th>Имя</th>
+          <th>Роль</th>
+          <th>Статус</th>
+          <th class="actions-header">Действие</th>
+          <th>Место</th>
+          <th>Примечание</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in players %}
+          <tr>
+            <td>{{ p.name }}</td>
+            <td>{{ p.role.name }}</td>
+            <td>{{ p.get_status_display }}</td>
+
+            <!-- кнопка в таблице -->
+            <td class="actions-cell">
+              <a href="{% url 'game:player_toggle_status' session.id p.id %}"
+                 class="btn-secondary btn-small">
+                {% if p.status == 'alive' %}
+                  Выбывает
+                {% else %}
+                  Вернуть
+                {% endif %}
+              </a>
+            </td>
+
+            <td>{{ p.seat_number|default:"—" }}</td>
+            <td>{{ p.notes }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="host-actions">
+      <a href="{% url 'game:player_add' session.id %}" class="btn-primary">
+        Добавить игрока
+      </a>
+    </div>
+  {% else %}
+    <p>В этой сессии пока нет игроков.</p>
+  {% endif %}
+{% endblock %}

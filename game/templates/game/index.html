@@ -1,73 +1,79 @@
 {% extends 'game/base.html' %}
 
+<!-- {% block breadcrumbs %}
+<nav class="breadcrumbs">
+    <a href="{% url 'game:index' %}" class="crumb crumb-active">Главная</a>
+</nav>
+{% endblock %} -->
+
 {% block content %}
 <section class="hero">
-  <div class="hero-slides">
-      <div class="hero-slide hero-slide-active">
-          <div class="hero-text">
-              <h1>Запишись на турнир</h1>
-              <p>Ближайшая игра: 25.12 в 16:00 · аудитория 310</p>
-              <button class="btn-primary">Записаться на турнир</button>
-          </div>
-      </div>
-      <div class="hero-slide">
-          <div class="hero-text">
-              <h1>Статистика по сессиям</h1>
-              <p>Всего сыграно {{ sessions_count }} сессий</p>
-              <button class="btn-primary">Открыть список сессий</button>
-          </div>
-      </div>
-      <div class="hero-slide">
-          <div class="hero-text">
-              <h1>Кто чаще побеждает?</h1>
-              <p>Мирные: {{ town_wins }} · Мафия: {{ mafia_wins }}</p>
-              <button class="btn-primary">Посмотреть детали</button>
-          </div>
-      </div>
-  </div>
+    <div class="hero-slides">
+        <div class="hero-slide hero-slide-active">
+            <div class="hero-text">
+                <span class="hero-eyebrow">Ближайший турнир</span>
+                <h1>Запишись на турнир</h1>
+                <p class="hero-subtitle">Ближайшая игра: 25.12 в 16:00 · аудитория 310</p>
+                <div class="hero-cta-row">
+                    <a href="{% url 'game:sessions_list' %}" class="btn-primary hero-cta">
+                        Смотреть сессии
+                    </a>
+                </div>
+            </div>
+        </div>
 
-  <div class="hero-dots">
-      <span class="dot hero-dot dot-active"></span>
-      <span class="dot hero-dot"></span>
-      <span class="dot hero-dot"></span>
-  </div>
-</section>
+        <div class="hero-slide">
+            <div class="hero-text">
+                <span class="hero-eyebrow">Общая статистика</span>
+                <h1>Статистика по сессиям</h1>
+                <p class="hero-subtitle">Всего сыграно {{ sessions_count }} сессий</p>
+                <div class="hero-cta-row">
+                    <a href="{% url 'game:sessions_list' %}" class="btn-primary hero-cta">
+                        Открыть список сессий
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-slide">
+            <div class="hero-text">
+                <span class="hero-eyebrow">Баланс игры</span>
+                <h1>Кто чаще побеждает?</h1>
+                <p class="hero-subtitle">Мирные: {{ town_wins }} · Мафия: {{ mafia_wins }}</p>
+                <div class="hero-cta-row">
+                    <a href="{% url 'game:modes' %}" class="btn-primary hero-cta">
+                        Смотреть режимы
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="hero-dots">
+        <span class="dot hero-dot dot-active"></span>
+        <span class="dot hero-dot"></span>
+        <span class="dot hero-dot"></span>
+    </div>
+  </section>
+
 
 <section class="cards-grid">
     <article class="stat-card">
-        <h2>Сессии</h2>
-        <p>{{ sessions_count }} сессий сыграно</p>
-        <button class="btn-secondary">Перейти</button>
+        <h2>Статистика побед</h2>
+        <p>Мирные: {{ town_wins }} · Мафия: {{ mafia_wins }}</p>
+        <a href="{% url 'game:sessions_list' %}" class="btn-secondary">Смотреть сессии</a>
     </article>
 
     <article class="stat-card">
-        <h2>Побед мирных</h2>
-        <p>{{ town_wins }} раз выиграли мирные</p>
-        <button class="btn-secondary">Перейти</button>
+        <h2>Режимы игры</h2>
+        <p>Классическая и спортивная мафия с описанием и лимитом игроков.</p>
+        <a href="{% url 'game:modes' %}" class="btn-secondary">Открыть</a>
     </article>
 
     <article class="stat-card">
-        <h2>Побед мафий</h2>
-        <p>{{ mafia_wins }} раз выиграла мафия</p>
-        <button class="btn-secondary">Перейти</button>
-    </article>
-
-    <article class="stat-card">
-        <h2>Сессии</h2>
-        <p>{{ sessions_count }} сессий сыграно</p>
-        <button class="btn-secondary">Перейти</button>
-    </article>
-
-    <article class="stat-card">
-        <h2>Сессии</h2>
-        <p>{{ sessions_count }} сессий сыграно</p>
-        <button class="btn-secondary">Перейти</button>
-    </article>
-
-    <article class="stat-card">
-        <h2>Сессии</h2>
-        <p>{{ sessions_count }} сессий сыграно</p>
-        <button class="btn-secondary">Перейти</button>
+        <h2>Роли и режимы</h2>
+        <p>Посмотри список ролей и вариантов проведения «Мафии».</p>
+        <a href="{% url 'game:roles' %}" class="btn-secondary">Открыть</a>
     </article>
 </section>
 {% endblock %}

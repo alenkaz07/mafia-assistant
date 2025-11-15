@@ -1,3 +1,4 @@
+/* База */
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -27,7 +28,17 @@ a {
   font-weight: 700;
   letter-spacing: 4px;
   font-size: 22px;
+  color: #f5f5f5;
+  transition:
+    color 0.15s ease,
+    transform 0.1s ease;
 }
+
+.logo:hover {
+  color: #e53935;
+  transform: translateY(-1px);
+}
+
 
 .main-nav a {
   display: inline-block;
@@ -60,6 +71,15 @@ a {
   width: 100%;
 }
 
+.main-nav a.nav-link-active {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.main-nav a.nav-link-active::after {
+  width: 100%;
+}
+
 .user-block {
   display: flex;
   align-items: center;
@@ -77,34 +97,64 @@ a {
   justify-content: center;
 }
 
-/* Контент */
-.page-content {
-  max-width: 1200px;
-  margin: 32px auto 64px;
+/* Хлебные крошки */
+
+.breadcrumbs {
+  font-size: 13px;
+  color: #aaaaaa;
+  margin-bottom: 16px;
 }
+
+.breadcrumbs .crumb {
+  color: #aaaaaa;
+}
+
+.breadcrumbs .crumb:hover {
+  color: #ffffff;
+}
+
+.breadcrumbs .crumb-active {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.breadcrumbs .crumb-sep {
+  margin: 0 6px;
+  color: #666666;
+}
+
 
 /* Баннер */
 .hero {
-  background: #000;
-  padding: 32px 40px;
-  border-radius: 12px;
   position: relative;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+  padding: 32px 40px;
+  border-radius: 16px;
   border: 1px solid #262626;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(229, 57, 53, 0.45), transparent 55%),
+    radial-gradient(circle at 0% 100%, rgba(255, 255, 255, 0.08), transparent 55%),
+    #000;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.85);
 }
 
-.hero-text h1 {
-  margin: 0 0 12px;
-  font-size: 28px;
-}
-
-.hero-text p {
-  margin: 0;
-  font-size: 14px;
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background-image: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.06) 1px,
+    transparent 1px
+  );
+  background-size: 120px 120px;
+  opacity: 0.18;
+  pointer-events: none;
 }
 
 .hero-slides {
   position: relative;
+  z-index: 1;
 }
 
 .hero-slide {
@@ -112,11 +162,63 @@ a {
 }
 
 .hero-slide-active {
-  display: block;
+  display: flex;
+  align-items: center;
+  min-height: 190px;
 }
 
+/* контент внутри слайда */
+.hero-text {
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* маленький бейдж над заголовком */
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #f5f5f5;
+  margin-bottom: 10px;
+}
+
+.hero-text h1 {
+  margin: 0 0 10px;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.hero-subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #d0d0d0;
+}
+
+/* для отступа */
+.hero-cta-row {
+  margin-top: 20px;
+}
+
+.hero-cta {
+  box-shadow: 0 10px 24px rgba(229, 57, 53, 0.6);
+}
+
+/* точки переключения */
 .hero-dots {
-  margin-top: 24px;
+  position: relative;
+  z-index: 1;
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .dot {
@@ -124,15 +226,43 @@ a {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #666;
-  margin-right: 6px;
+  background: #555;
+  opacity: 0.6;
   cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    transform 0.15s ease,
+    opacity 0.15s ease;
 }
 
 .dot-active {
-  background: #e53935;
+  background: #ff3b30;
+  opacity: 1;
+  transform: scale(1.2);
 }
 
+/* Контент */
+.page-content {
+  max-width: 1200px;
+  margin: 32px auto 64px;
+}
+
+/* Подзаголовок под заголовком страницы */
+.page-title::after {
+  content: "";
+  display: block;
+  width: 90px;
+  height: 3px;
+  margin-top: 10px;
+  background: #e53935;
+  border-radius: 2px;
+}
+
+.page-subtitle {
+  margin: 0 0 20px;
+  font-size: 14px;
+  color: #cccccc;
+}
 
 /* Карточки */
 .cards-grid {
@@ -143,43 +273,38 @@ a {
 }
 
 .stat-card {
-  background: #000;
-  padding: 24px;
-  border-radius: 12px;
-  text-align: center;
-  border: 1px solid #262626;
+  background: #111111;
+  padding: 20px 22px;
+  border-radius: 16px;
+  border: 1px solid #3a3a3a;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
-  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  cursor: default;
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.1s ease;
 }
 
-/* .stat-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-  border-color: #e53935;
-} */
-
 .stat-card h2 {
-  margin-top: 0;
-  margin-bottom: 16px;
+  margin: 0 0 10px;
   font-size: 18px;
 }
 
 .stat-card p {
   margin: 0;
   font-size: 14px;
+  color: #cccccc;
+}
+
+.stat-card .btn-secondary {
+  margin-top: 16px;
 }
 
 /* Кнопки */
-.btn-primary,
-.btn-secondary {
-  border: none;
-  cursor: pointer;
-  padding: 8px 20px;
-  margin-top: 16px;
-  border-radius: 3px;
-  font-size: 14px;
-}
-
 .btn-primary,
 .btn-secondary {
   border: none;
@@ -200,8 +325,14 @@ a {
 }
 
 .btn-secondary {
-  background: #c62828;
+  background: #e53935;
   color: #fff;
+}
+
+/* кнопка у таблицы для ведущего */
+.btn-small {
+  padding: 5px 14px;
+  font-size: 13px;
 }
 
 .btn-primary:hover,
@@ -215,47 +346,394 @@ a {
 }
 
 .btn-secondary:hover {
-  background: #ef5350;
+  background: #ff3b30;
+}
+
+.card-more-btn {
+  margin-top: auto;
+  padding-top: 12px;
+  padding-left: 0;
+  border: none;
+  background: transparent;
+  color: #e53935;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.card-more-arrow {
+  font-size: 16px;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+
+.card-more-btn:hover {
+  color: #ff3b30;
+}
+
+.card-more-btn:hover .card-more-arrow {
+  transform: translateX(3px);
+}
+
+
+/* Роли */
+/* Сетка карточек ролей */
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+
+/* Карточка роли */
+.role-card {
+  background: #111111;
+  padding: 20px 22px;
+  border-radius: 16px;
+  border: 1px solid #3a3a3a;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.1s ease,
+    background-color 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Ховер по карточке */
+.role-card:hover {
+  border-color: #e53935;
+  background: #151515;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.8);
+  transform: translateY(-2px);
+}
+
+/* Заголовок карточки */
+.role-card-title {
+  margin: 0 0 1px;
+  font-size: 18px;
+}
+
+.role-card-label {
+  display: block;
+  font-size: 12px;
+  color: #888888;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+
+/* Краткое описание на карточке — всегда видно */
+.role-card-excerpt {
+  margin: 0;
+  font-size: 14px;
+  color: #cccccc;
+  line-height: 1.5;
+}
+
+/* Полное описание — только для JS, скрыто на странице */
+.role-card-full {
+  display: none;
+}
+
+/* Модальное окно ролей */
+.role-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+/* когда открыто */
+.role-modal-backdrop.role-modal-backdrop-open {
+  display: flex;
+}
+
+/* Само модальное окно */
+.role-modal {
+  background: #111111;
+  padding: 28px 32px;
+  border-radius: 16px;
+  border: 1px solid #3a3a3a;
+  max-width: 640px;
+  width: calc(100% - 64px);
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+  position: relative;
+}
+
+/* Заголовок в модалке */
+.role-modal-title {
+  margin: 0 0 12px;
+  font-size: 22px;
+}
+
+/* Текст роли в модалке */
+
+.role-modal-label {
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: #aaaaaa;
+}
+
+.role-modal-text {
+  font-size: 14px;
+  color: #f5f5f5;
+  line-height: 1.5;
+}
+
+.role-modal-body {
+  font-size: 14px;
+  color: #dddddd;
+  line-height: 1.5;
+}
+
+/* Кнопка закрытия */
+.role-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  border: none;
+  background: transparent;
+  color: #aaaaaa;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.role-modal-close:hover {
+  color: #ffffff;
+}
+
+/* Режимы игры (карточки, как роли) */
+.mode-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.mode-card {
+  background: #111111;
+  padding: 20px 22px;
+  border-radius: 16px;
+  border: 1px solid #3a3a3a;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.1s ease,
+    background-color 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.mode-card:hover {
+  border-color: #e53935;
+  background: #151515;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.8);
+  transform: translateY(-2px);
+}
+
+.mode-card-title {
+  margin: 0 0 10px;
+  font-size: 18px;
+}
+
+/* Описание: */
+.mode-card-label {
+  display: block;
+  font-size: 12px;
+  color: #888888;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+
+.mode-card-excerpt {
+  margin: 0;
+  font-size: 14px;
+  color: #cccccc;
+  line-height: 1.5;
+}
+
+.mode-card-full {
+  display: none;
+}
+
+.mode-card-players {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #aaaaaa;
+}
+
+.mode-card-players-modal {
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: #aaaaaa;
+}
+
+/* таблицы сессий */
+.sessions-panel {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-top: 24px;
+}
+
+.sessions-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0;
+  font-size: 13px;
+}
+
+.sessions-table th,
+.sessions-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #333;
+  text-align: left;
+}
+
+.sessions-table th {
+  background: #111;
+  font-weight: 600;
+}
+
+/* .sessions-table tr:nth-child(even) {
+  background: #1b1b1b;
+} */
+
+/* для ведущего */
+.sessions-table tbody tr:hover {
+  background: #292929;
+}
+
+/* .sessions-table-wrapper {
+  flex: 1 1 auto;
+} */
+
+.sessions-actions-column {
+  flex: 0 0 120px;
+  display: flex;
+  flex-direction: column;
+  padding-top: 36px;
+}
+
+.session-action-row {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 1px;
+}
+
+.form-section {
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+}
+
+.form-card {
+  background: #111111;
+  padding: 28px 32px;
+  border-radius: 16px;
+  border: 1px solid #3a3a3a;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+  max-width: 560px;
+  width: 100%;
+}
+
+.mafia-form {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* .mafia-form p {
+  margin-bottom: 12px;
+} */
+
+.mafia-form .form-row {
+  margin-bottom: 24px;
+}
+
+.mafia-form label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.mafia-form input,
+.mafia-form select,
+.mafia-form textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  background: #111;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #f5f5f5;
+  font-size: 14px;
+}
+
+.mafia-form input:focus,
+.mafia-form select:focus,
+.mafia-form textarea:focus {
+  outline: none;
+  border-color: #e53935;
+  box-shadow: 0 0 0 1px #e53935;
+}
+
+/* .mafia-form input[type="number"] {
+  box-sizing: border-box;
+  -moz-appearance: textfield;
+} */
+
+/* .mafia-form input[type="number"]::-webkit-outer-spin-button,
+.mafia-form input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+} */
+
+.mafia-form .form-error {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #ff8a80;
+}
+
+.host-actions {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.actions-header,
+.actions-cell {
+  text-align: right;
 }
 
 /* Футер */
 .footer {
   background: #3c3c3c;
   color: #ccc;
-  padding: 16px 64px;
-  font-size: 12px;
+  padding: 20px 64px;
+  font-size: 14px;
 
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* justify-content: center; */
   text-align: center;
 }
 
 .footer-links {
-  margin-top: 4px;
-}
-
-
-
-.sessions-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 24px;
-  font-size: 14px;
-}
-
-.sessions-table th,
-.sessions-table td {
-  border: 1px solid #333;
-  padding: 8px 12px;
-}
-
-.sessions-table th {
-  background: #262626;
-  text-align: left;
-}
-
-.sessions-table tr:nth-child(even) {
-  background: #1b1b1b;
+  margin-top: 6px;
 }

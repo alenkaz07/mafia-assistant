@@ -1,5 +1,11 @@
 {% extends 'game/base.html' %}
 
+{% block breadcrumbs %}
+<nav class="breadcrumbs">
+    <a href="{% url 'game:sitemap' %}" class="crumb crumb-active">Карта сайта</a>
+</nav>
+{% endblock %}
+
 {% block content %}
 <section class="hero">
     <div class="hero-text">
