@@ -23,17 +23,19 @@
     <table class="sessions-table">
       <thead>
         <tr>
-          <th>Имя</th>
-          <th>Роль</th>
-          <th>Статус</th>
+          <th data-sort-type="number">ID</th>
+          <th data-sort-type="text">Имя</th>
+          <th data-sort-type="text">Роль</th>
+          <th data-sort-type="text">Статус</th>
           <th class="actions-header">Действие</th>
-          <th>Место</th>
-          <th>Примечание</th>
+          <th data-sort-type="number">Место</th>
+          <th data-sort-type="text">Примечание</th>
         </tr>
       </thead>
       <tbody>
         {% for p in players %}
           <tr>
+            <td>{{ p.id }}</td>
             <td>{{ p.name }}</td>
             <td>{{ p.role.name }}</td>
             <td>{{ p.get_status_display }}</td>
@@ -57,12 +59,17 @@
       </tbody>
     </table>
 
-    <div class="host-actions">
+    <!-- <div class="host-actions">
       <a href="{% url 'game:player_add' session.id %}" class="btn-primary">
         Добавить игрока
       </a>
-    </div>
+    </div> -->
   {% else %}
     <p>В этой сессии пока нет игроков.</p>
   {% endif %}
+  <div class="host-actions">
+    <a href="{% url 'game:player_add' session.id %}" class="btn-primary">
+      Добавить игрока
+    </a>
+  </div>
 {% endblock %}

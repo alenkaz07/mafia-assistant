@@ -637,6 +637,44 @@ a {
   margin-bottom: 1px;
 }
 
+/* Сортировка в таблице */
+.sessions-table th.sortable-header {
+  position: relative;
+  cursor: pointer;
+  padding-right: 18px;
+}
+
+/* Неактивный) треугольник */
+.sessions-table th.sortable-header::after {
+  content: "";
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 4px solid transparent;
+  border-top-color: #cccccc;
+  opacity: 0.25;
+  transition:
+    opacity 0.15s ease,
+    border-top-color 0.15s ease,
+    border-bottom-color 0.15s ease;
+}
+
+/* По возрастанию */
+.sessions-table th.sortable-header.sorted-asc::after {
+  opacity: 1;
+  border-top-color: transparent;
+  border-bottom-color: #e53935;
+}
+
+/* По убыванию */
+.sessions-table th.sortable-header.sorted-desc::after {
+  opacity: 1;
+  border-bottom-color: transparent;
+  border-top-color: #e53935;
+}
+
+
 .form-section {
   margin-top: 32px;
   display: flex;

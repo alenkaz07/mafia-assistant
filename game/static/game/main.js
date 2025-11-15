@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Модальное окно с полным описанием
+  // Модальное окно с полным описанием ролей
   const roleCards = document.querySelectorAll('[data-role-card]');
   const modalBackdrop = document.getElementById('role-modal');
   const modalTitle = document.getElementById('role-modal-title');
@@ -41,26 +41,22 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.style.overflow = '';
     };
 
-    // Клик по крестику
     if (modalClose) {
       modalClose.addEventListener('click', closeModal);
     }
 
-    // Клик по фону вокруг модалки
     modalBackdrop.addEventListener('click', (event) => {
       if (event.target === modalBackdrop) {
         closeModal();
       }
     });
 
-    // Escape — закрыть
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') {
         closeModal();
       }
     });
 
-    // Клик по карточке — открыть модалку
     roleCards.forEach((card) => {
       card.addEventListener('click', () => {
         const titleEl = card.querySelector('.role-card-title');
@@ -73,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+
   // Модальное окно для режимов игры
   const modeCards = document.querySelectorAll('[data-mode-card]');
   const modeBackdrop = document.getElementById('mode-modal');
@@ -121,4 +118,75 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+
+  // Сортировка таблицы
+  const setupSortableTables = () => {
+    const tables = document.querySelectorAll('.sessions-table');
+
+    tables.forEach((table) => {
+      const headers = table.querySelectorAll('thead th');
+
+      headers.forEach((th, colIndex) => {
+        const sortType = th.dataset.sortType;
+        if (!sortType) return;
+
+        th.classList.add('sortable-header');
+
+        th.addEventListener('click', () => {
+          const tbody = table.tBodies[0];
+          if (!tbody) return;
+
+          const currentDir =
+            th.dataset.sortDir === 'asc'
+              ? 'asc'
+              : th.dataset.sortDir === 'desc'
+              ? 'desc'
+              : null;
+
+          const newDir = currentDir === 'asc' ? 'desc' : 'asc';
+
+          // сбрасываем состояние остальных заголовков
+          headers.forEach((h) => {
+            h.dataset.sortDir = '';
+            h.classList.remove('sorted-asc', 'sorted-desc');
+          });
+
+          th.dataset.sortDir = newDir;
+          th.classList.add(newDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
+
+          const rows = Array.from(tbody.querySelectorAll('tr'));
+
+          const getCellValue = (row) => {
+            const cell = row.children[colIndex];
+            if (!cell) return '';
+            if (cell.dataset.sortValue !== undefined) {
+              return cell.dataset.sortValue;
+            }
+            return cell.textContent.trim();
+          };
+
+          rows.sort((rowA, rowB) => {
+            let a = getCellValue(rowA);
+            let b = getCellValue(rowB);
+
+            if (sortType === 'number') {
+              a = parseFloat(a.replace(',', '.')) || 0;
+              b = parseFloat(b.replace(',', '.')) || 0;
+            } else {
+              a = a.toLowerCase();
+              b = b.toLowerCase();
+            }
+
+            if (a < b) return newDir === 'asc' ? -1 : 1;
+            if (a > b) return newDir === 'asc' ? 1 : -1;
+            return 0;
+          });
+
+          rows.forEach((row) => tbody.appendChild(row));
+        });
+      });
+    });
+  };
+
+  setupSortableTables();
 });

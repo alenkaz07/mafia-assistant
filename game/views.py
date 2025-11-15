@@ -39,7 +39,7 @@ def sessions_list(request):
     sessions_qs = (
         Session.objects
         .select_related('mode', 'host')
-        .order_by('-created_at')
+        .order_by('-id')
     )
     return render(request, 'game/sessions_list.html', {'sessions': sessions_qs})
 

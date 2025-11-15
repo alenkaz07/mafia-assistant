@@ -37,8 +37,15 @@ class PhaseAdmin(admin.ModelAdmin):
 
 @admin.register(Player)
 class PlayerAdmin(admin.ModelAdmin):
-    list_display = ("name", "session", "role", "status", "seat_number")
-    list_filter = ("status", "role")
+    list_display = (
+        "id",
+        "session",
+        "name",
+        "role",
+        "status",
+        "seat_number",
+    )
+    list_filter = ("session", "status", "role")
     search_fields = ("name", "session__id")
 
 

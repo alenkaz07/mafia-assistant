@@ -97,7 +97,6 @@ class Phase(models.Model):
 
 class Player(models.Model):
     """Конкретный игрок в рамках сессии."""
-
     class PlayerStatus(models.TextChoices):
         ALIVE = "alive", "В игре"
         DEAD = "dead", "Выбыл"
