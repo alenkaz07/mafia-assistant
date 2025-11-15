@@ -45,7 +45,7 @@
               <a href="{% url 'game:player_toggle_status' session.id p.id %}"
                  class="btn-secondary btn-small">
                 {% if p.status == 'alive' %}
-                  Выбывает
+                  Исключить
                 {% else %}
                   Вернуть
                 {% endif %}
@@ -58,12 +58,6 @@
         {% endfor %}
       </tbody>
     </table>
-
-    <!-- <div class="host-actions">
-      <a href="{% url 'game:player_add' session.id %}" class="btn-primary">
-        Добавить игрока
-      </a>
-    </div> -->
   {% else %}
     <p>В этой сессии пока нет игроков.</p>
   {% endif %}

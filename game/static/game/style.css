@@ -674,6 +674,28 @@ a {
   border-top-color: #e53935;
 }
 
+/* кнопки-ссылки */
+.sessions-table .btn-secondary.btn-small {
+  background: transparent;
+  color: #e53935;
+  text-decoration: underline;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none;
+  font-size: 13px;
+}
+
+/* Ховер для ссылки в таблице */
+.sessions-table .btn-secondary.btn-small:hover {
+  background: transparent;
+  color: #ff3b30;
+  text-decoration: underline;
+  transform: none;
+  box-shadow: none;
+}
+
+
 
 .form-section {
   margin-top: 32px;

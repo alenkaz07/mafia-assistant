@@ -41,22 +41,26 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.style.overflow = '';
     };
 
+    // Клик по крестику
     if (modalClose) {
       modalClose.addEventListener('click', closeModal);
     }
 
+    // Клик по фону вокруг модалки
     modalBackdrop.addEventListener('click', (event) => {
       if (event.target === modalBackdrop) {
         closeModal();
       }
     });
 
+    // Escape — закрыть
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') {
         closeModal();
       }
     });
 
+    // Клик по карточке — открыть модалку
     roleCards.forEach((card) => {
       card.addEventListener('click', () => {
         const titleEl = card.querySelector('.role-card-title');
