@@ -693,17 +693,6 @@ a {
   box-shadow: 0 0 0 1px #e53935;
 }
 
-/* .mafia-form input[type="number"] {
-  box-sizing: border-box;
-  -moz-appearance: textfield;
-} */
-
-/* .mafia-form input[type="number"]::-webkit-outer-spin-button,
-.mafia-form input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-} */
-
 .mafia-form .form-error {
   margin-top: 4px;
   font-size: 12px;
@@ -719,6 +708,31 @@ a {
 .actions-header,
 .actions-cell {
   text-align: right;
+}
+
+/* Карта сайта */
+.sitemap-section-title {
+  margin: 24px 0 8px;
+  font-size: 16px;
+}
+
+.sitemap-list {
+  margin: 0 0 12px 20px;
+  padding: 0;
+}
+
+.sitemap-list li {
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.sitemap-url {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 12px;
+  background: #1c1c1c;
+  padding: 1px 5px;
+  border-radius: 4px;
+  border: 1px solid #333333;
 }
 
 /* Футер */

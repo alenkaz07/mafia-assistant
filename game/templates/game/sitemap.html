@@ -2,15 +2,67 @@
 
 {% block breadcrumbs %}
 <nav class="breadcrumbs">
-    <a href="{% url 'game:sitemap' %}" class="crumb crumb-active">Карта сайта</a>
+    <a href="{% url 'game:index' %}" class="crumb">Главная</a>
+    <span class="crumb-sep">/</span>
+    <span class="crumb crumb-active">Карта сайта</span>
 </nav>
 {% endblock %}
 
 {% block content %}
-<section class="hero">
-    <div class="hero-text">
-        <h1>Карта сайта</h1>
-        <p>Быстрые ссылки на основные разделы веб-сервиса «Мафия-ассистент».</p>
-    </div>
-</section>
+  <h1 class="page-title">Карта сайта</h1>
+  <p class="page-subtitle">
+      Структура разделов и быстрые ссылки по веб-сервису «Мафия-ассистент».
+  </p>
+
+  <h2 class="sitemap-section-title">Основные страницы</h2>
+  <ul class="sitemap-list">
+    <li>
+      <a href="{% url 'game:index' %}">Главная</a> — баннер, статистика и быстрые переходы.
+    </li>
+    <li>
+      <a href="{% url 'game:rules' %}">Правила игры</a> — описание процесса игры «Мафия».
+    </li>
+    <li>
+      <a href="{% url 'game:sitemap' %}">Карта сайта</a> — текущая страница со структурой сервиса.
+    </li>
+  </ul>
+
+  <h2 class="sitemap-section-title">Роли и режимы</h2>
+  <ul class="sitemap-list">
+    <li>
+      <a href="{% url 'game:roles' %}">Роли</a> — список ролей с кратким и полным описанием.
+    </li>
+    <li>
+      <a href="{% url 'game:modes' %}">Режимы игры</a> — варианты проведения и лимиты игроков.
+    </li>
+  </ul>
+
+  <h2 class="sitemap-section-title">Турниры и сессии</h2>
+  <ul class="sitemap-list">
+    <li>
+      <a href="{% url 'game:sessions_list' %}">Список сессий / турниров</a> — сыгранные и запланированные партии.
+    </li>
+  </ul>
+
+  <h2 class="sitemap-section-title">Кабинет ведущего</h2>
+  <ul class="sitemap-list">
+    <li>
+      <a href="{% url 'game:host_sessions' %}">Кабинет ведущего</a> — управление своими сессиями.
+    </li>
+    <li>
+      Управление конкретной сессией:
+      <span class="sitemap-url">/host/sessions/&lt;session_id&gt;/</span>
+    </li>
+    <li>
+      Добавление игрока в сессию:
+      <span class="sitemap-url">/host/sessions/&lt;session_id&gt;/players/add/</span>
+    </li>
+  </ul>
+
+  <h2 class="sitemap-section-title">Служебные страницы</h2>
+  <ul class="sitemap-list">
+    <li>
+      Страница 404 (не найдена) — показывается при переходе на несуществующий адрес.
+    </li>
+  </ul>
 {% endblock %}
