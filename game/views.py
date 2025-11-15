@@ -138,3 +138,6 @@ def player_toggle_status(request, session_id, player_id):
 
     player.save()
     return redirect('game:session_manage', session_id=session.id)
+
+def custom_404(request, exception):
+    return render(request, 'game/404.html', status=404)

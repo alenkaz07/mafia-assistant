@@ -1,0 +1,34 @@
+{% extends 'game/base.html' %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumbs">
+    <a href="{% url 'game:index' %}" class="crumb">Главная</a>
+    <span class="crumb-sep">/</span>
+    <span class="crumb crumb-active">Страница не найдена</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+<section class="error-page">
+    <div class="error-page-main">
+        <h1 class="page-title">Ошибка 404</h1>
+        <p class="page-subtitle">
+            Такой страницы в веб-сервисе «Мафия-ассистент» нет
+            или она была удалена.
+        </p>
+
+        <div class="error-page-actions">
+            <a href="{% url 'game:index' %}" class="btn-primary">
+                На главную
+            </a>
+            <a href="{% url 'game:sitemap' %}" class="btn-secondary">
+                Карта сайта
+            </a>
+        </div>
+    </div>
+
+    <div class="error-page-code">
+        404
+    </div>
+</section>
+{% endblock %}

@@ -21,3 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('game.urls')),
 ]
+
+handler404 = 'game.views.custom_404'
