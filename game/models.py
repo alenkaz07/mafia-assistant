@@ -68,6 +68,18 @@ class Session(models.Model):
     players_count = models.PositiveIntegerField("Количество игроков")
     created_at = models.DateTimeField("Создана", auto_now_add=True)
     finished_at = models.DateTimeField("Завершена", null=True, blank=True)
+    current_round = models.PositiveIntegerField(
+        "Текущий круг",
+        default=1,
+    )
+    current_phase = models.ForeignKey(
+        "Phase",
+        verbose_name="Текущая фаза",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="sessions_in_phase",
+    )
 
     class Meta:
         verbose_name = "Игровая сессия"
@@ -113,6 +125,8 @@ class Player(models.Model):
         verbose_name="Роль",
         on_delete=models.PROTECT,
         related_name="players",
+        null=True,
+        blank=True,
     )
     status = models.CharField(
         "Статус игрока",
@@ -132,6 +146,11 @@ class Player(models.Model):
         null=True,
         blank=True,
         related_name="failed_players",
+    )
+    fail_round = models.PositiveIntegerField(
+        "Круг выбывания",
+        null=True,
+        blank=True,
     )
     notes = models.CharField("Примечания", max_length=300, blank=True)
 

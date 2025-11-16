@@ -11,59 +11,180 @@
 {% endblock %}
 
 {% block content %}
-  <!-- заголовок  (панель ведущего) -->
+  <!-- Заголовок (панель ведущего) -->
   <h1 class="page-title">
     Сессия #{{ session.id }} ({{ session.mode.name }})
   </h1>
   <p class="page-subtitle">
-    Статус: {{ session.get_status_display }} · Игроков: {{ session.players.count }}
+    Режим: {{ session.mode.name }}
+  </p>
+  <p class="page-subtitle">
+    Круг: {{ session.current_round }} ·
+    Фаза: {{ session.current_phase.name|default:"—" }} ·
+    Статус: {{ session.get_status_display }}
   </p>
 
-  {% if players %}
-    <table class="sessions-table">
-      <thead>
-        <tr>
-          <th data-sort-type="number">ID</th>
-          <th data-sort-type="text">Имя</th>
-          <th data-sort-type="text">Роль</th>
-          <th data-sort-type="text">Статус</th>
-          <th class="actions-header">Действие</th>
-          <th data-sort-type="number">Место</th>
-          <th data-sort-type="text">Примечание</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for p in players %}
-          <tr>
-            <td>{{ p.id }}</td>
-            <td>{{ p.name }}</td>
-            <td>{{ p.role.name }}</td>
-            <td>{{ p.get_status_display }}</td>
-
-            <!-- кнопка в таблице -->
-            <td class="actions-cell">
-              <a href="{% url 'game:player_toggle_status' session.id p.id %}"
-                 class="btn-secondary btn-small">
-                {% if p.status == 'alive' %}
-                  Исключить
-                {% else %}
-                  Вернуть
-                {% endif %}
-              </a>
-            </td>
-
-            <td>{{ p.seat_number|default:"—" }}</td>
-            <td>{{ p.notes }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% else %}
-    <p>В этой сессии пока нет игроков.</p>
+  {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
   {% endif %}
-  <div class="host-actions">
-    <a href="{% url 'game:player_add' session.id %}" class="btn-primary">
-      Добавить игрока
-    </a>
+
+  <!-- Если сессия ещё не запущена — форма Начать игру -->
+  {% if session.status == 'planned' %}
+    <section class="form-section">
+      <div class="form-card">
+        <h2>Начать игру</h2>
+        <p class="page-subtitle">
+          Выберите способ выдачи ролей и запустите первую ночь.
+        </p>
+
+        <p class="page-subtitle">
+          Запланировано игроков: {{ session.players_count }}.
+          Сейчас добавлено: {{ players|length }}.
+        </p>
+
+        <form method="post"
+              action="{% url 'game:session_start' session.id %}"
+              class="mafia-form">
+          {% csrf_token %}
+
+          <div class="form-row form-row-radios-inline">
+            <span class="form-row-title">Способ выдачи ролей</span>
+
+            <label class="radio-pill">
+              <input type="radio" name="assign_mode" value="random" checked>
+              <span>Роли распределяет сервис (рандомно)</span>
+            </label>
+
+            <label class="radio-pill">
+              <input type="radio" name="assign_mode" value="manual">
+              <span>Роли уже выданы по карточкам (я сам назначу роли)</span>
+            </label>
+          </div>
+
+          <button type="submit"
+                  class="btn-primary"
+                  {% if players|length < 6 %}disabled{% endif %}>
+            Начать игру
+          </button>
+        </form>
+
+      </div>
+    </section>
+  {% endif %}
+
+  <!-- Таблица игроков и управление фазами -->
+  <div class="sessions-panel" style="margin-top: 32px;">
+    <div class="sessions-table-wrapper" style="flex: 1 1 auto;">
+      <table class="sessions-table">
+        <thead>
+          <tr>
+            <th data-sort-type="number">№ места</th>
+            <th data-sort-type="text">Имя</th>
+            <th data-sort-type="text">Роль</th>
+            <th data-sort-type="text">Статус</th>
+            <th data-sort-type="text">Фаза выбывания</th>
+            <th data-sort-type="number">Круг выбывания</th>
+            <th data-sort-type="text" class="actions-header">Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for player in players %}
+            <tr>
+              <td>{{ player.seat_number|default:"—" }}</td>
+              <td>{{ player.name }}</td>
+              <td>
+                {% if player.role %}
+                  {{ player.role.name }}
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+              <td>{{ player.get_status_display }}</td>
+              <td>
+                {% if player.fail_phase %}
+                  {{ player.fail_phase.name }}
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+              <td>
+                {% if player.fail_round %}
+                  {{ player.fail_round }}
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+              <td class="actions-cell">
+                <a href="{% url 'game:player_toggle_status' session.id player.id %}"
+                   class="btn-secondary btn-small">
+                  {% if player.status == 'alive' %}
+                    Пометить как выбывшего
+                  {% else %}
+                    Вернуть в игру
+                  {% endif %}
+                </a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7">Игроков пока нет. Добавьте как минимум 6 игроков.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Справа: управление фазами / итог -->
+    <div class="sessions-actions-column">
+      {% if session.status == 'active' %}
+        <div class="session-action-row">
+          <form method="post">
+            {% csrf_token %}
+            <button type="submit" name="advance_phase" class="btn-secondary btn-small">
+              Следующая фаза
+            </button>
+          </form>
+        </div>
+      {% elif session.status == 'finished' and session.result %}
+        <div class="session-action-row">
+          <div>
+            <p><strong>Игра завершена</strong></p>
+            <p>Победили: {{ session.result.get_winner_side_display }}</p>
+            <p>Кругов: {{ session.result.rounds_count }}</p>
+            <p>Мафия в конце: {{ session.result.mafia_count }}</p>
+            <p>Мирные в конце: {{ session.result.town_count }}</p>
+          </div>
+        </div>
+      {% endif %}
+    </div>
   </div>
+
+  <!-- Кнопки снизу -->
+  <div class="host-actions">
+    {% if session.status == 'planned' %}
+      <a href="{% url 'game:player_add' session.id %}" class="btn-secondary btn-small">
+        Добавить игрока
+      </a>
+    {% else %}
+      <a href="{% url 'game:player_add' session.id %}" class="btn-secondary btn-small">
+        Добавить ещё игрока
+      </a>
+    {% endif %}
+
+    <!-- Удалить сессию -->
+    <form method="post"
+          action="{% url 'game:session_delete' session.id %}"
+          style="display:inline-block; margin-left: 12px;"
+          onsubmit="return confirm('Удалить эту сессию со всеми игроками и результатами?');">
+        {% csrf_token %}
+        <button type="submit" class="btn-secondary btn-small">
+          Удалить сессию
+        </button>
+    </form>
+  </div>
+
 {% endblock %}
