@@ -3,69 +3,77 @@ from django.db import transaction
 import random
 from .models import Session, Player, Result, Phase, Role
 
-SPORT_MODE_KEYWORD = "спортив"  # подстрока в названии режима
+
+SPORT_MODE_KEYWORD = "спортив"   # подстрока в названии спортивного режима
+
+
+# === 1. Подбор ролей под количество игроков ===
 
 def build_default_role_pool(players_count: int) -> list[Role]:
     """
-    Простейшая рекомендация набора ролей по количеству игроков.
+    Набор ролей для классики по описанным правилам:
+
+    - мафия ≈ 25% от игроков, минимум 2;
+    - комиссар — всегда, если игроков >= 6;
+    - доктор — с 8 игроков;
+    - дон мафии (это тоже мафия) — с 12 игроков;
+    - маньяк — с 13 игроков;
+    - красотка — с 14 игроков;
+    - остальные — мирные жители.
     """
-    all_roles = {r.name.lower(): r for r in Role.objects.all()}
-    mafia = all_roles.get("мафия") or all_roles.get("мафиози")
-    town = all_roles.get("мирный житель")
-    commissar = all_roles.get("комиссар")
-    doctor = all_roles.get("доктор")
+    roles_by_name = {r.name.lower(): r for r in Role.objects.all()}
+
+    mafia_role = roles_by_name.get("мафия")
+    town_role = roles_by_name.get("мирный житель")
+    cop_role = roles_by_name.get("комиссар")
+    doctor_role = roles_by_name.get("доктор")
+    don_role = roles_by_name.get("дон мафии")
+    maniac_role = roles_by_name.get("маньяк")
+    beauty_role = roles_by_name.get("красотка")
 
     pool: list[Role] = []
 
-    if players_count <= 9:
-        mafia_count = 2
-        town = 3
-        commissar = 1
-    elif players_count <= 9:
-        mafia_count = 2
-    else:
-        mafia_count = 3
+    # --- мафия (25% от игроков, минимум 2) ---
+    mafia_total = 0
+    if mafia_role or don_role:
+        mafia_total = max(2, int(players_count * 0.25 + 0.5))  # ~25%, округление вверх
 
-    if mafia:
-        pool.extend([mafia] * mafia_count)
+        # дон появляется с 12 игроков и считается одной из мафий
+        don_slots = 1 if (don_role and players_count >= 12 and mafia_total >= 2) else 0
 
-    if town:
-        town_count = max(players_count - mafia_count - 2, 0)
-        pool.extend([town] * town_count)
+        simple_mafia_count = max(mafia_total - don_slots, 0)
+        if mafia_role and simple_mafia_count > 0:
+            pool.extend([mafia_role] * simple_mafia_count)
 
-    if commissar and players_count >= 6:
-        pool.append(commissar)
-    if doctor and players_count >= 7:
-        pool.append(doctor)
+        if don_slots:
+            pool.append(don_role)
 
-    while len(pool) < players_count and town:
-        pool.append(town)
+    # особые роли (кроме мафии)
+    # комиссар — с 6 игроков
+    if cop_role and players_count >= 6:
+        pool.append(cop_role)
 
-    return pool
+    # доктор — с 8 игроков
+    if doctor_role and players_count >= 8:
+        pool.append(doctor_role)
 
+    # маньяк — с 13
+    if maniac_role and players_count >= 13:
+        pool.append(maniac_role)
 
-def assign_roles_randomly(session, players):
-    """
-    Раздача ролей:
-    - для спортивной мафии — по жёсткой схеме;
-    - для остальных режимов — просто рандом из всех ролей.
-    """
-    mode_name = session.mode.name.lower()
+    # красотка — с 14
+    if beauty_role and players_count >= 14:
+        pool.append(beauty_role)
 
-    if SPORT_MODE_KEYWORD in mode_name:
-        return assign_roles_sport(session, players)
+    # добиваем мирными
+    if town_role:
+        remaining = players_count - len(pool)
+        if remaining > 0:
+            pool.extend([town_role] * remaining)
 
-    # Обычный режим — просто случайные роли из всех доступных
-    roles = list(Role.objects.all())
-    if not roles:
-        return
+    # на всякий — обрезаем, если вдруг переложили
+    return pool[:players_count]
 
-    random.shuffle(roles)
-    roles_cycle = roles * ((len(players) // len(roles)) + 1)
-
-    for player, role in zip(players, roles_cycle):
-        player.role = role
-        player.save()
 
 def assign_roles_sport(session, players):
     """
@@ -87,12 +95,11 @@ def assign_roles_sport(session, players):
     except Role.DoesNotExist as e:
         raise ValidationError(f"Не найдена одна из ролей для спортивной мафии: {e}")
 
-    # Жёсткий пул ролей: 10 штук
     roles_pool = (
         [peaceful] * 6 +
-        [cop] * 1 +
+        [cop] +
         [mafia] * 2 +
-        [don] * 1
+        [don]
     )
 
     random.shuffle(players)
@@ -102,29 +109,101 @@ def assign_roles_sport(session, players):
         player.role = role
         player.save()
 
+
+def assign_roles_randomly(session, players):
+    """
+    Раздача ролей:
+    - для спортивной мафии — жёсткая схема (assign_roles_sport);
+    - для остальных режимов — по build_default_role_pool().
+    """
+    players = list(players)
+    if not players:
+        return
+
+    mode_name = session.mode.name.lower()
+
+    # спортивный режим
+    if SPORT_MODE_KEYWORD in mode_name:
+        return assign_roles_sport(session, players)
+
+    # обычные режимы
+    pool = build_default_role_pool(len(players))
+    if not pool:
+        # запасной вариант — просто крутим все роли
+        roles = list(Role.objects.all())
+        if not roles:
+            return
+        random.shuffle(roles)
+        pool = roles * ((len(players) // len(roles)) + 1)
+
+    random.shuffle(players)
+    random.shuffle(pool)
+
+    for player, role in zip(players, pool):
+        player.role = role
+        player.save()
+
+
+# Подсчёт живых и определение победителя
+
 def get_alive_players(session: Session):
     return Player.objects.filter(
         session=session,
-        status=Player.PlayerStatus.ALIVE
+        status=Player.PlayerStatus.ALIVE,
     ).select_related("role")
 
 
-def get_alive_counts(session: Session) -> tuple[int, int]:
+def get_alive_counts(session: Session) -> tuple[int, int, int]:
+    """
+    Возвращает (mafia_count, town_count, maniac_count).
+
+    - Дон мафии считается мафией (по подстроке "маф");
+    - Маньяк — отдельная третья сторона;
+    - Остальные — мирные (включая доктора, комиссара, красотку и т.п.).
+    """
     alive = list(get_alive_players(session))
-    mafia = sum(1 for p in alive if "маф" in p.role.name.lower())
-    town = len(alive) - mafia
-    return mafia, town
+    mafia = town = maniac = 0
+
+    for p in alive:
+        role_name = (p.role.name if p.role else "").lower()
+
+        if "маньяк" in role_name:
+            maniac += 1
+        elif "маф" in role_name:  # "мафия" и "дон мафии"
+            mafia += 1
+        else:
+            town += 1
+
+    return mafia, town, maniac
 
 
 def check_winner(session: Session) -> str | None:
-    mafia_count, town_count = get_alive_counts(session)
+    """
+    Победитель по правилам:
+    - если жив только маньяк → побеждает Маньяк;
+    - если мафии и маньяка нет, но есть мирные → побеждают Мирные;
+    - если есть только мафия (дон считается мафией), без мирных и маньяка → побеждает Мафия;
+    - во всех остальных случаях игра продолжается.
+    """
+    mafia, town, maniac = get_alive_counts(session)
 
-    if mafia_count == 0:
+    # Маньяк один
+    if maniac > 0 and mafia == 0 and town == 0:
+        return Result.WinnerSide.MANIAC
+
+    # Мирные победили: мафии и маньяка нет
+    if mafia == 0 and maniac == 0 and town > 0:
         return Result.WinnerSide.TOWN
-    if mafia_count >= town_count:
-        return Result.WinnerSide.MAFIA
-    return None  # игра продолжается
 
+    # Мафия победила: остались только мафия/дон
+    if mafia > 0 and town == 0 and maniac == 0:
+        return Result.WinnerSide.MAFIA
+
+    # Игра продолжается
+    return None
+
+
+# 3. Переход по фазам
 
 @transaction.atomic
 def advance_phase(session: Session):
@@ -137,11 +216,13 @@ def advance_phase(session: Session):
     if not phases:
         return
 
+    # если фаза не установлена — ставим первую
     if session.current_phase is None:
         session.current_phase = phases[0]
         session.save()
         return
 
+    # ищем индекс текущей фазы
     try:
         idx = phases.index(session.current_phase)
     except ValueError:
@@ -153,8 +234,9 @@ def advance_phase(session: Session):
 
     if is_last_phase:
         winner = check_winner(session)
+
         if winner and session.status != Session.Status.FINISHED:
-            mafia_count, town_count = get_alive_counts(session)
+            mafia_count, town_count, _ = get_alive_counts(session)
             Result.objects.create(
                 session=session,
                 winner_side=winner,
@@ -166,9 +248,11 @@ def advance_phase(session: Session):
             session.save()
             return
 
+        # если победителя нет — новый круг, с первой фазы
         session.current_round += 1
         session.current_phase = phases[0]
         session.save()
     else:
+        # просто идём к следующей фазе
         session.current_phase = phases[idx + 1]
         session.save()

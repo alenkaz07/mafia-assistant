@@ -623,11 +623,49 @@ a {
 } */
 
 .sessions-actions-column {
-  flex: 0 0 120px;
+  flex: 0 0 260px;
   display: flex;
   flex-direction: column;
-  padding-top: 36px;
+  align-items: stretch;
+  padding-top: 8px;
+  margin-left: 24px;
 }
+.phase-hints-card {
+  background: #111111;
+  border: 1px solid #3a3a3a;
+  border-radius: 12px;
+  padding: 16px 18px;
+  font-size: 13px;
+  line-height: 1.5;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+  margin-bottom: 16px;
+}
+
+.phase-hints-title {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.phase-hints-text {
+  margin: 0 0 6px;
+  color: #dddddd;
+}
+
+.phase-hints-list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.phase-hints-list li {
+  margin-bottom: 4px;
+}
+
+.phase-next-form {
+  margin-top: auto;
+  text-align: right;
+}
+
 
 .session-action-row {
   height: 40px;

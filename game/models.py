@@ -209,6 +209,7 @@ class Result(models.Model):
     class WinnerSide(models.TextChoices):
         MAFIA = "mafia", "Мафия"
         TOWN = "town", "Мирные"
+        MANIAC = "maniac", "Маньяк"
 
     session = models.OneToOneField(
         Session,

@@ -192,5 +192,46 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
+  // Таймер дня (1,5 минуты на обсуждение)
+  const dayTimerButton = document.getElementById('day-timer-start');
+  const dayTimerDisplay = document.getElementById('day-timer-display');
+
+  if (dayTimerButton && dayTimerDisplay) {
+    let timerId = null;
+
+    const formatTime = (seconds) => {
+      const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+      const s = String(seconds % 60).padStart(2, '0');
+      return `${m}:${s}`;
+    };
+
+    const startTimer = (duration) => {
+      let remaining = duration;
+      dayTimerDisplay.textContent = formatTime(remaining);
+
+      if (timerId) {
+        clearInterval(timerId);
+      }
+
+      dayTimerDisplay.classList.remove('timer-finished');
+
+      timerId = setInterval(() => {
+        remaining -= 1;
+        if (remaining <= 0) {
+          clearInterval(timerId);
+          timerId = null;
+          dayTimerDisplay.textContent = '00:00';
+          dayTimerDisplay.classList.add('timer-finished');
+          return;
+        }
+        dayTimerDisplay.textContent = formatTime(remaining);
+      }, 1000);
+    };
+
+    dayTimerButton.addEventListener('click', () => {
+      startTimer(90); // 1,5 минуты
+    });
+  }
+
   setupSortableTables();
 });
