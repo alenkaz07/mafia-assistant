@@ -87,7 +87,7 @@ a {
   font-size: 14px;
 }
 
-.user-icon {
+/* .user-icon {
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -95,6 +95,16 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
+} */
+
+.user-name-link {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.user-name-link:hover {
+  text-decoration: underline;
 }
 
 /* Хлебные крошки */
@@ -797,6 +807,15 @@ a {
   color: #ff8a80;
 }
 
+.mafia-form input:-webkit-autofill,
+.mafia-form input:-webkit-autofill:hover,
+.mafia-form input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #111 inset;
+  -webkit-text-fill-color: #fff;
+  caret-color: #fff;
+}
+
+
 /* Форма Добавьте игроков */
 .assign-mode-row {
   margin-top: 20px;
@@ -879,6 +898,12 @@ a {
 .form-row-actions-inline .btn-primary,
 .form-row-actions-inline .btn-secondary {
   margin-top: 0;
+}
+
+.form-help {
+  font-size: 12px;
+  color: #aaaaaa;
+  margin-top: 4px;
 }
 
 .host-actions {

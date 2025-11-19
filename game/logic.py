@@ -6,7 +6,7 @@ from .models import Session, Player, Result, Phase, Role
 
 SPORT_MODE_KEYWORD = "спортив"   # подстрока в названии спортивного режима
 
-# === 1. Подбор ролей под количество игроков ===
+# 1. Подбор ролей под количество игроков
 
 def build_default_role_pool(players_count: int) -> list[Role]:
     """
@@ -32,7 +32,7 @@ def build_default_role_pool(players_count: int) -> list[Role]:
 
     pool: list[Role] = []
 
-    # --- мафия (25% от игроков, минимум 2) ---
+    # мафия (25% от игроков, минимум 2)
     mafia_total = 0
     if mafia_role or don_role:
         mafia_total = max(2, int(players_count * 0.25 + 0.5))  # ~25%, округление вверх
@@ -178,9 +178,9 @@ def get_alive_counts(session: Session) -> tuple[int, int, int]:
 def check_winner(session: Session) -> str | None:
     """
     Победитель по правилам:
-    - если жив только маньяк → побеждает Маньяк;
+    - если жив только маньяк - побеждает Маньяк;
     - если мафии и маньяка нет, но есть мирные → побеждают Мирные;
-    - если есть только мафия (дон считается мафией), без мирных и маньяка → побеждает Мафия;
+    - если есть только мафия (дон считается мафией), без мирных и маньяка - побеждает Мафия;
     - во всех остальных случаях игра продолжается.
     """
     mafia, town, maniac = get_alive_counts(session)
@@ -223,7 +223,6 @@ def finish_game_if_needed(session: Session):
         rounds_count=session.current_round,
         mafia_count=mafia_count,
         town_count=town_count,
-        # маньяка пока не сохраняем отдельно, но при желании можно добавить поле
     )
     session.status = Session.Status.FINISHED
     session.save()

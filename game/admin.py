@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Mode, Role, Session, Phase, Player, Vote, Result
+from .models import Mode, Role, Session, Phase, Player, Vote, Result, Profile
 
 
 @admin.register(Mode)
@@ -60,3 +60,7 @@ class VoteAdmin(admin.ModelAdmin):
 class ResultAdmin(admin.ModelAdmin):
     list_display = ("session", "winner_side", "rounds_count", "mafia_count", "town_count")
     list_filter = ("winner_side",)
+
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ("user", "role")

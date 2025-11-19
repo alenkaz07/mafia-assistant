@@ -1,3 +1,5 @@
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 from django import forms
 from .models import Session, Player
 
@@ -58,3 +60,31 @@ class PlayerForm(forms.ModelForm):
             'status': 'Статус',
             'notes': 'Примечание',
         }
+
+
+class RegisterForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ("username", "first_name", "last_name", "email")
+        labels = {
+            "username": "Логин",
+            "first_name": "Имя",
+            "last_name": "Фамилия",
+            "email": "Email",
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Короткие русские подсказки
+        self.fields["username"].help_text = (
+            "Можно использовать латинские буквы, цифры и символы @/./+/-/_"
+        )
+
+        self.fields["password1"].label = "Пароль"
+        self.fields["password1"].help_text = (
+            "Минимум 8 символов, не слишком простой и не только из цифр."
+        )
+
+        self.fields["password2"].label = "Подтверждение пароля"
+        self.fields["password2"].help_text = "Введите тот же пароль ещё раз."

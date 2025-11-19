@@ -1,0 +1,41 @@
+{% extends "game/base.html" %}
+
+{% block content %}
+  <h1 class="page-title">Личный кабинет игрока</h1>
+
+  <p class="page-subtitle">
+    Привет, {{ request.user.first_name|default:request.user.username }}!
+  </p>
+
+  <p class="page-subtitle">
+    Пока ты можешь просматривать основные страницы сервиса и смотреть общую
+    статистику партий. Позже здесь появится список игр, в которых ты участвовал.
+  </p>
+
+  <section class="cards-grid" style="margin-top: 32px;">
+    <article class="stat-card">
+      <h2>Статистика партий</h2>
+      <p>Всего сыграно {{ sessions_count }} партий.</p>
+      <p>Побед мафии: {{ mafia_wins }} · побед мирных: {{ town_wins }}.</p>
+      <a href="{% url 'game:sessions_list' %}" class="btn-secondary">
+        Смотреть сессии
+      </a>
+    </article>
+
+    <article class="stat-card">
+      <h2>Режимы игры</h2>
+      <p>Классическая и спортивная мафия с описанием и лимитом игроков.</p>
+      <a href="{% url 'game:modes' %}" class="btn-secondary">
+        Открыть режимы
+      </a>
+    </article>
+
+    <article class="stat-card">
+      <h2>Роли</h2>
+      <p>Изучи роли, чтобы лучше понимать баланс и стратегии.</p>
+      <a href="{% url 'game:roles' %}" class="btn-secondary">
+        Список ролей
+      </a>
+    </article>
+  </section>
+{% endblock %}

@@ -232,3 +232,31 @@ class Result(models.Model):
 
     def __str__(self):
         return f"Результат сессии #{self.session_id} ({self.get_winner_side_display()})"
+
+
+class Profile(models.Model):
+    class Role(models.TextChoices):
+        ADMIN = "admin", "Администратор"
+        HOST = "host", "Ведущий"
+        PLAYER = "player", "Игрок"
+
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="profile",
+        verbose_name="Пользователь",
+    )
+    role = models.CharField(
+        "Роль",
+        max_length=20,
+        choices=Role.choices,
+        default=Role.PLAYER,
+    )
+
+    class Meta:
+        verbose_name = "Профиль"
+        verbose_name_plural = "Профили"
+        ordering = ["user__username"]
+
+    def __str__(self):
+        return f"{self.user.username} ({self.get_role_display()})"

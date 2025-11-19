@@ -11,45 +11,55 @@
     <a href="{% url 'game:index' %}" class="logo">
         MAFIA
     </a>
+
     <nav class="main-nav">
-        {% with request.resolver_match.url_name as url_name %}
-            <a href="{% url 'game:index' %}"
-               class="{% if url_name == 'index' %}nav-link-active{% endif %}">
-                Главная
-            </a>
+        <!-- Главная -->
+        <a href="{% url 'game:index' %}"
+           class="{% if request.resolver_match.url_name == 'index' %}nav-link-active{% endif %}">
+            Главная
+        </a>
 
-            <a href="{% url 'game:rules' %}"
-               class="{% if url_name == 'rules' %}nav-link-active{% endif %}">
-                Правила игры
-            </a>
+        <!-- Правила -->
+        <a href="{% url 'game:rules' %}"
+           class="{% if request.resolver_match.url_name == 'rules' %}nav-link-active{% endif %}">
+            Правила игры
+        </a>
 
-            <a href="{% url 'game:roles' %}"
-               class="{% if url_name == 'roles' %}nav-link-active{% endif %}">
-                Роли
-            </a>
+        <!-- Роли -->
+        <a href="{% url 'game:roles' %}"
+           class="{% if request.resolver_match.url_name == 'roles' %}nav-link-active{% endif %}">
+            Роли
+        </a>
 
-            <a href="{% url 'game:modes' %}"
-               class="{% if url_name == 'modes' %}nav-link-active{% endif %}">
-                Режимы
-            </a>
+        <!-- Режимы -->
+        <a href="{% url 'game:modes' %}"
+           class="{% if request.resolver_match.url_name == 'modes' %}nav-link-active{% endif %}">
+            Режимы
+        </a>
 
-            <a href="{% url 'game:sessions_list' %}"
-               class="{% if url_name == 'sessions_list' %}nav-link-active{% endif %}">
-                Турниры
-            </a>
+        <!-- Турниры -->
+        <a href="{% url 'game:sessions_list' %}"
+           class="{% if request.resolver_match.url_name == 'sessions_list' %}nav-link-active{% endif %}">
+            Турниры
+        </a>
 
-            <a href="{% url 'game:host_sessions' %}"
-               class="{% if url_name in 'host_sessions session_create session_manage player_add' %}
-                        nav-link-active
-                      {% endif %}">
-                Кабинет ведущего
-            </a>
-        {% endwith %}
+        <!-- Кабинет – подсвечиваем для нескольких url_name -->
+        <a href="{% url 'cabinet' %}"
+           class="{% if request.resolver_match.url_name in 'host_sessions session_create session_manage player_add player_cabinet cabinet' %}nav-link-active{% endif %}">
+            Кабинет
+        </a>
     </nav>
-    </nav>
+
     <div class="user-block">
-        <span>Алёна</span>
-        <div class="user-icon">👤</div>
+        {% if request.user.is_authenticated %}
+            <a href="{% url 'cabinet' %}" class="user-name user-name-link">
+              {{ request.user.get_full_name|default:request.user.username }}
+            </a>
+            <a href="{% url 'logout' %}" class="user-logout-link">Выйти</a>
+        {% else %}
+            <a href="{% url 'login' %}" class="btn-secondary btn-small">Войти</a>
+            <a href="{% url 'register' %}" class="btn-primary btn-small">Регистрация</a>
+        {% endif %}
     </div>
 </header>
 
@@ -65,6 +75,7 @@
       <a href="{% url 'game:sitemap' %}">Карта сайта</a>
   </div>
 </footer>
+
 <script src="{% static 'game/main.js' %}"></script>
 </body>
 </html>

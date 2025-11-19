@@ -11,6 +11,8 @@ urlpatterns = [
     path('sessions/', views.sessions_list, name='sessions_list'),
     path('sitemap/', views.sitemap, name='sitemap'),
 
+
+    path('player/', views.player_cabinet, name='player_cabinet'),
     # кабинет ведущего
     path('host/sessions/', views.host_sessions, name='host_sessions'),
     path('host/sessions/create/', views.session_create, name='session_create'),
