@@ -34,55 +34,78 @@
 
   <!-- Если сессия ещё не запущена — форма Начать игру -->
   {% if session.status == 'planned' %}
-    <section class="form-section">
-      <div class="form-card">
-        <h2>Начать игру</h2>
-        <p class="page-subtitle">
-          Выберите способ выдачи ролей и запустите первую ночь.
-        </p>
+  <section class="form-section">
+    <div class="form-card">
+      <h2>Добавьте игроков</h2>
+      <p class="page-subtitle">
+        Выберите способ выдачи ролей и запустите первую ночь.
+      </p>
 
-        <p class="page-subtitle">
-          Запланировано игроков: {{ session.players_count }}.
-          Сейчас добавлено: {{ players|length }}.
-        </p>
+      <p class="page-subtitle">
+        Запланировано игроков: {{ session.players_count }}.
+        Сейчас добавлено: {{ players|length }}.
+      </p>
 
-        <form method="post"
-              action="{% url 'game:session_start' session.id %}"
-              class="mafia-form">
-          {% csrf_token %}
+      <form method="post"
+            action="{% url 'game:session_start' session.id %}"
+            class="mafia-form">
+        {% csrf_token %}
 
-          <div class="form-row form-row-radios-inline">
-            <span class="form-row-title">Способ выдачи ролей</span>
+      <!-- выбор способа выдачи ролей -->
+      <div class="form-row assign-mode-row">
+        <span class="form-row-title">Способ выдачи ролей</span>
 
-            <label class="radio-pill">
-              <input type="radio" name="assign_mode" value="random" checked>
-              <span>Роли распределяет сервис (рандомно)</span>
-            </label>
+        <div class="assign-mode-pills">
+          <button type="button"
+                  class="assign-mode-pill is-active"
+                  data-mode="random">
+            <span class="assign-mode-pill-title">Роли раздаёт бот</span>
+            <span class="assign-mode-pill-sub">
+              Роли распределяются автоматически (рандомно)
+            </span>
+          </button>
 
-            <label class="radio-pill">
-              <input type="radio" name="assign_mode" value="manual">
-              <span>Роли уже выданы по карточкам (я сам назначу роли)</span>
-            </label>
-          </div>
-          <a href="{% url 'game:player_add' session.id %}" class="btn-secondary btn-small">
+          <button type="button"
+                  class="assign-mode-pill"
+                  data-mode="manual">
+            <span class="assign-mode-pill-title">Карточки</span>
+            <span class="assign-mode-pill-sub">
+              Роли уже выданы по карточкам (я сам назначу роли)
+            </span>
+          </button>
+        </div>
+        <!-- сюда пишем выбранный режим (random / manual) -->
+          <input type="hidden"
+                 name="assign_mode"
+                 id="assign-mode-input"
+                 value="random">
+       </div>
+
+         <!-- Кнопки в одну строку -->
+        <div class="form-row form-row-actions-inline">
+          <a href="{% url 'game:player_add' session.id %}"
+             class="btn-secondary btn-small">
             Добавить игрока
           </a>
+
           <button type="submit"
-                  class="btn-primary"
+                  class="btn-primary btn-small"
                   {% if players|length < 6 %}disabled{% endif %}>
             Начать игру
           </button>
-        </form>
-      </div>
-    </section>
-  {% endif %}
+        </div>
+      </form>
+    </div>
+  </section>
+{% endif %}
 
-  <!-- маленькое сообщение, когда игра только что стартовала -->
+
+  <!-- маленькое сообщение, когда игра только что стартовала
   {% if session.status == 'active' and session.current_round == 1 and session.current_phase %}
     <ul>
       <li>Игра начата.</li>
     </ul>
-  {% endif %}
+  {% endif %} -->
 
   <!-- Таблица игроков + правая колонка -->
   <div class="sessions-panel" style="margin-top: 32px;">
@@ -161,17 +184,34 @@
                   <li>Мафия засыпает, остаётся дон и выбирает, кого проверить.</li>
                   <li>Дон засыпает, просыпается доктор и выбирает, кого лечить.</li>
                 </ol>
+
               {% elif 'день' in phase_name %}
                 <p class="phase-hints-title">День</p>
+
+                {% if night_victims %}
+                  <p class="phase-hints-text">
+                    Ночью убит(ы):
+                    {% for p in night_victims %}
+                      {{ p.name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}.
+                  </p>
+                {% else %}
+                  <p class="phase-hints-text">
+                    Ночью никто не убит.
+                  </p>
+                {% endif %}
+
                 <p class="phase-hints-text">
-                  Объявите, кто убит ночью, затем запустите обсуждение (1,5 минуты),
-                  после чего переходите к голосованию.
+                  Объявите результат и дайте игрокам время на обсуждение,
+                  затем переходите к голосованию.
                 </p>
+
               {% elif 'голос' in phase_name %}
                 <p class="phase-hints-title">Голосование</p>
                 <p class="phase-hints-text">
                   Озвучьте кандидатов, соберите голоса и пометьте выбывшего игрока.
                 </p>
+
               {% else %}
                 <p class="phase-hints-title">Текущая фаза</p>
                 <p class="phase-hints-text">

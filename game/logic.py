@@ -1,33 +1,32 @@
 from django.core.exceptions import ValidationError
 from django.db import transaction
+import math
 import random
 from .models import Session, Player, Result, Phase, Role
 
-
 SPORT_MODE_KEYWORD = "спортив"   # подстрока в названии спортивного режима
-
 
 # === 1. Подбор ролей под количество игроков ===
 
 def build_default_role_pool(players_count: int) -> list[Role]:
     """
-    Набор ролей для классики по описанным правилам:
-
-    - мафия ≈ 25% от игроков, минимум 2;
-    - комиссар — всегда, если игроков >= 6;
-    - доктор — с 8 игроков;
-    - дон мафии (это тоже мафия) — с 12 игроков;
-    - маньяк — с 13 игроков;
-    - красотка — с 14 игроков;
-    - остальные — мирные жители.
+    Рекомендованный набор ролей для КЛАССИЧЕСКОЙ мафии по количеству игроков.
+    Мафия ~25%, дон считается мафией.
+    Пороги:
+      - 6+ : появляется комиссар
+      - 8+ : появляется доктор
+      - 12+ : появляется дон мафии
+      - 13+ : появляется маньяк
+      - 14+ : появляется красотка
+    Остальные места заполняем мирными жителями.
     """
     roles_by_name = {r.name.lower(): r for r in Role.objects.all()}
 
     mafia_role = roles_by_name.get("мафия")
+    don_role = roles_by_name.get("дон мафии")
     town_role = roles_by_name.get("мирный житель")
     cop_role = roles_by_name.get("комиссар")
     doctor_role = roles_by_name.get("доктор")
-    don_role = roles_by_name.get("дон мафии")
     maniac_role = roles_by_name.get("маньяк")
     beauty_role = roles_by_name.get("красотка")
 
@@ -145,7 +144,6 @@ def assign_roles_randomly(session, players):
 
 
 # Подсчёт живых и определение победителя
-
 def get_alive_players(session: Session):
     return Player.objects.filter(
         session=session,
@@ -202,9 +200,35 @@ def check_winner(session: Session) -> str | None:
     # Игра продолжается
     return None
 
+# 3. Завершение игры
+@transaction.atomic
+def finish_game_if_needed(session: Session):
+    """
+    Проверить, не пора ли завершить игру, и если да — создать Result и
+    поменять статус сессии.
+    Вызывается и при смене фазы, и при "убийстве" игрока.
+    """
+    if session.status == Session.Status.FINISHED:
+        return
 
-# 3. Переход по фазам
+    winner = check_winner(session)
+    if not winner:
+        return
 
+    mafia_count, town_count, maniac_count = get_alive_counts(session)
+
+    Result.objects.create(
+        session=session,
+        winner_side=winner,
+        rounds_count=session.current_round,
+        mafia_count=mafia_count,
+        town_count=town_count,
+        # маньяка пока не сохраняем отдельно, но при желании можно добавить поле
+    )
+    session.status = Session.Status.FINISHED
+    session.save()
+
+# 4. Переход по фазам
 @transaction.atomic
 def advance_phase(session: Session):
     """
@@ -233,19 +257,9 @@ def advance_phase(session: Session):
     is_last_phase = (idx == len(phases) - 1)
 
     if is_last_phase:
-        winner = check_winner(session)
-
-        if winner and session.status != Session.Status.FINISHED:
-            mafia_count, town_count, _ = get_alive_counts(session)
-            Result.objects.create(
-                session=session,
-                winner_side=winner,
-                rounds_count=session.current_round,
-                mafia_count=mafia_count,
-                town_count=town_count,
-            )
-            session.status = Session.Status.FINISHED
-            session.save()
+        # закрываем круг и проверяем победу
+        finish_game_if_needed(session)
+        if session.status == Session.Status.FINISHED:
             return
 
         # если победителя нет — новый круг, с первой фазы

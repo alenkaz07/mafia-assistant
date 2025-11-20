@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Сортировка таблицы
   const setupSortableTables = () => {
-    const tables = document.querySelectorAll('.sessions-table');
+  const tables = document.querySelectorAll('.sessions-table');
 
     tables.forEach((table) => {
       const headers = table.querySelectorAll('thead th');
@@ -192,46 +192,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
-  // Таймер дня (1,5 минуты на обсуждение)
-  const dayTimerButton = document.getElementById('day-timer-start');
-  const dayTimerDisplay = document.getElementById('day-timer-display');
+    // Переключение способа выдачи ролей (пилюли)
+    const assignModeInput = document.getElementById('assign-mode-input');
+    const assignModePills = document.querySelectorAll('.assign-mode-pill');
 
-  if (dayTimerButton && dayTimerDisplay) {
-    let timerId = null;
+    if (assignModeInput && assignModePills.length) {
+      assignModePills.forEach((pill) => {
+        pill.addEventListener('click', () => {
+          const mode = pill.dataset.mode || 'random';
 
-    const formatTime = (seconds) => {
-      const m = String(Math.floor(seconds / 60)).padStart(2, '0');
-      const s = String(seconds % 60).padStart(2, '0');
-      return `${m}:${s}`;
-    };
+          assignModeInput.value = mode;
 
-    const startTimer = (duration) => {
-      let remaining = duration;
-      dayTimerDisplay.textContent = formatTime(remaining);
-
-      if (timerId) {
-        clearInterval(timerId);
-      }
-
-      dayTimerDisplay.classList.remove('timer-finished');
-
-      timerId = setInterval(() => {
-        remaining -= 1;
-        if (remaining <= 0) {
-          clearInterval(timerId);
-          timerId = null;
-          dayTimerDisplay.textContent = '00:00';
-          dayTimerDisplay.classList.add('timer-finished');
-          return;
-        }
-        dayTimerDisplay.textContent = formatTime(remaining);
-      }, 1000);
-    };
-
-    dayTimerButton.addEventListener('click', () => {
-      startTimer(90); // 1,5 минуты
-    });
-  }
+          assignModePills.forEach((p) => p.classList.remove('is-active'));
+          pill.classList.add('is-active');
+        });
+      });
+    }
 
   setupSortableTables();
 });

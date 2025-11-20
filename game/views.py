@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 
 from .models import Session, Result, Role, Mode, Player, Phase
 from .forms import SessionForm, PlayerForm
-from .logic import assign_roles_randomly, advance_phase, assign_roles_sport
+from .logic import assign_roles_randomly, advance_phase, assign_roles_sport, finish_game_if_needed
 
 
 def index(request):
@@ -97,15 +97,33 @@ def session_manage(request, session_id):
         Session.objects.select_related('mode', 'current_phase'),
         id=session_id
     )
-    players_qs = session.players.select_related('role').order_by('seat_number', 'name')
+    players_qs = (
+        session.players
+        .select_related('role')
+        .order_by('seat_number', 'name')
+    )
 
+    # переход к следующей фазе
     if request.method == 'POST' and 'advance_phase' in request.POST:
         advance_phase(session)
         return redirect('game:session_manage', session_id=session.id)
 
+    #   игрок мёртв
+    #   вылетел в этом же круге
+    night_victims = (
+        session.players
+        .filter(
+            status=Player.PlayerStatus.DEAD,
+            fail_round=session.current_round,
+        )
+        .select_related("role")
+        .order_by("seat_number", "name")
+    )
+
     context = {
         'session': session,
         'players': players_qs,
+        'night_victims': night_victims,
     }
     return render(request, 'game/session_manage.html', context)
 
@@ -151,6 +169,9 @@ def player_toggle_status(request, session_id, player_id):
         player.fail_round = None
 
     player.save()
+    # сразу проверяем, не окончилось ли всё
+    finish_game_if_needed(session)
+
     return redirect("game:session_manage", session_id=session.id)
 
 def custom_404(request, exception):

@@ -797,6 +797,90 @@ a {
   color: #ff8a80;
 }
 
+/* Форма Добавьте игроков */
+.assign-mode-row {
+  margin-top: 20px;
+}
+
+.assign-mode-row .form-row-title {
+  font-size: 14px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* контейнер с двумя вариантами */
+.assign-mode-pills {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+/* сама «пилюля» */
+.assign-mode-pill {
+  flex: 0 1 260px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid #444;
+  background: #111;
+  cursor: pointer;
+  text-align: left;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #e0e0e0;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.1s ease;
+}
+
+.assign-mode-pill:hover {
+  border-color: #e53935;
+  box-shadow: 0 0 0 1px rgba(229, 57, 53, 0.35);
+  transform: translateY(-1px);
+}
+
+/* активная пилюля (выбрана) */
+.assign-mode-pill.is-active {
+  border-color: #e53935;
+  background: #1a0000;
+  box-shadow: 0 0 0 1px #e53935;
+}
+
+/* заголовок внутри пилюли */
+.assign-mode-pill-title {
+  display: block;
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+/* подзаголовок */
+.assign-mode-pill-sub {
+  display: block;
+  font-size: 12px;
+  color: #bdbdbd;
+}
+
+/* подзаголовок в активной пилюле – чуть светлее */
+.assign-mode-pill.is-active .assign-mode-pill-sub {
+  color: #ffecec;
+}
+
+/* кнопки под пилюлями — по центру и в ряд */
+.form-row-actions-inline {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.form-row-actions-inline .btn-primary,
+.form-row-actions-inline .btn-secondary {
+  margin-top: 0;
+}
+
 .host-actions {
   display: flex;
   justify-content: center;
