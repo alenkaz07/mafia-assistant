@@ -20,7 +20,7 @@
             <div class="hero-text">
                 <span class="hero-eyebrow">Общая статистика</span>
                 <h1>Статистика по сессиям</h1>
-                <p class="hero-subtitle">Всего сыграно {{ sessions_count }} сессий</p>
+                <p class="hero-subtitle">Всего сыграно и запланировано {{ sessions_count }} сессий</p>
                 <div class="hero-cta-row">
                     <a href="{% url 'game:sessions_list' %}" class="btn-primary hero-cta">
                         Открыть список сессий
@@ -65,8 +65,8 @@
     </article>
 
     <article class="stat-card">
-        <h2>Роли и режимы</h2>
-        <p>Посмотри список ролей и вариантов проведения «Мафии».</p>
+        <h2>Роли</h2>
+        <p>Посмотри список ролей игры «Мафии».</p>
         <a href="{% url 'game:roles' %}" class="btn-secondary">Открыть</a>
     </article>
 </section>
