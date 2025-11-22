@@ -254,7 +254,8 @@ a {
 /* Контент */
 .page-content {
   max-width: 1200px;
-  margin: 32px auto 64px;
+  margin: 0 auto;
+  padding: 24px 32px;
 }
 
 /* Подзаголовок под заголовком страницы */
@@ -327,6 +328,11 @@ a {
     background-color 0.15s ease,
     transform 0.1s ease,
     box-shadow 0.15s ease;
+}
+
+.topbar .btn-primary,
+.topbar .btn-secondary {
+  margin-top: 0;
 }
 
 .btn-primary {
@@ -998,4 +1004,298 @@ a {
 
 .footer-links {
   margin-top: 6px;
+}
+
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Бургер-кнопка */
+.burger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+
+  width: 26px;
+  height: 22px;
+  padding: 0;
+  margin-left: 16px;
+
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  font-size: 0;
+  line-height: 0;
+  transition: none;
+}
+
+.burger-line {
+  display: block;
+  width: 100%;
+  height: 2px;
+  border-radius: 999px;
+  background: #f5f5f5;
+  transition:
+    transform 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.burger.burger-open .burger-line:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.burger.burger-open .burger-line:nth-child(2) {
+  opacity: 0;
+}
+
+.burger.burger-open .burger-line:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+/* Выпадающее меню пользователя */
+.user-menu {
+  position: relative;
+}
+
+.user-name-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
+.user-name-btn:hover {
+  text-decoration: underline;
+}
+
+.user-menu-dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 6px;
+  background: #111;
+  border-radius: 8px;
+  border: 1px solid #444;
+  padding: 8px 0;
+  min-width: 160px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.7);
+  display: none;
+  z-index: 150;
+}
+
+.user-menu-dropdown a {
+  display: block;
+  padding: 6px 12px;
+  font-size: 14px;
+}
+
+.user-menu-dropdown a:hover {
+  background: #222;
+}
+
+.user-menu.user-menu-open .user-menu-dropdown {
+  display: block;
+}
+
+/* Адаптив: бургер + скрыть logout-кнопку */
+@media (max-width: 922px) {
+  .main-nav {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    background: #3c3c3c;
+    padding: 12px 24px;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .main-nav.main-nav-open {
+    display: flex;
+  }
+
+  .burger {
+    display: flex;
+  }
+}
+
+/* Адаптивная верстка */
+
+/* Планшеты, уменьшенный десктоп */
+@media (max-width: 1024px) {
+  .topbar {
+    padding: 10px 24px;
+  }
+
+  .page-content {
+    padding: 20px 24px;
+  }
+
+  /* 3-колоночные сетки - 2 колонки */
+  .cards-grid,
+  .role-grid,
+  .mode-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Таблица + правая колонка в сессии */
+  .sessions-panel {
+    flex-direction: column;
+  }
+
+  .sessions-actions-column {
+    flex: 1 1 auto;
+    margin-left: 0;
+    width: 100%;
+    max-width: 100%;
+    padding-top: 16px;
+  }
+}
+
+/* Планшеты / большие телефоны */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+
+  .topbar {
+    padding: 10px 16px;
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+
+  .logo {
+    font-size: 18px;
+  }
+
+  /* Меню переносится на вторую строку */
+  .main-nav {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .main-nav a {
+    margin: 4px 8px;
+    font-size: 14px;
+  }
+
+  .user-block {
+    margin-left: auto;
+    font-size: 13px;
+  }
+
+  .page-content {
+    padding: 16px 16px 24px;
+  }
+
+  .hero {
+    padding: 20px;
+  }
+
+  .hero-text h1 {
+    font-size: 22px;
+  }
+
+  .hero-subtitle {
+    font-size: 13px;
+  }
+
+  /* Все карточки в одну колонку */
+  .cards-grid,
+  .role-grid,
+  .mode-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-card {
+    padding: 20px;
+  }
+
+  .sessions-table th,
+  .sessions-table td {
+    padding: 8px;
+  }
+
+  .footer {
+    padding: 16px;
+  }
+}
+
+/* Маленькие телефоны */
+@media (max-width: 480px) {
+  .topbar {
+    padding: 8px 12px;
+  }
+
+  .logo {
+    letter-spacing: 2px;
+    font-size: 16px;
+  }
+
+  .hero {
+    padding: 16px;
+  }
+
+  .hero-text h1 {
+    font-size: 20px;
+  }
+
+  .hero-eyebrow {
+    font-size: 10px;
+  }
+
+  /* Кнопки на всю ширину */
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    text-align: center;
+  }
+
+  .form-row-actions-inline {
+    flex-direction: column;
+  }
+
+  /* Пилюли выбора способа раздачи ролей — столбиком */
+  .assign-mode-pills {
+    flex-direction: column;
+  }
+
+  .assign-mode-pill {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+}
+
+/* Бургер и мобильное меню (ширина меньше 920px) */
+@media (max-width: 920px) {
+  .main-nav {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    background: #3c3c3c;
+    padding: 12px 24px;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .main-nav.main-nav-open {
+    display: flex;
+  }
+
+  .burger {
+    display: flex;
+  }
 }

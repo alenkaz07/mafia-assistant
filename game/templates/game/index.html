@@ -1,11 +1,5 @@
 {% extends 'game/base.html' %}
 
-<!-- {% block breadcrumbs %}
-<nav class="breadcrumbs">
-    <a href="{% url 'game:index' %}" class="crumb crumb-active">Главная</a>
-</nav>
-{% endblock %} -->
-
 {% block content %}
 <section class="hero">
     <div class="hero-slides">
@@ -15,8 +9,8 @@
                 <h1>Запишись на турнир</h1>
                 <p class="hero-subtitle">Ближайшая игра: 25.12 в 16:00 · аудитория 310</p>
                 <div class="hero-cta-row">
-                    <a href="{% url 'game:sessions_list' %}" class="btn-primary hero-cta">
-                        Смотреть сессии
+                    <a href="{% url 'cabinet' %}" class="btn-primary hero-cta">
+                        Личный кабинет
                     </a>
                 </div>
             </div>

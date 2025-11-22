@@ -19,6 +19,7 @@
           <th data-sort-type="text">Режим</th>
           <th data-sort-type="text">Статус</th>
           <th data-sort-type="number">Игроков</th>
+          <th data-sort-type="text">Победитель</th>
           <th data-sort-type="text">Создана</th>
         </tr>
       </thead>
@@ -27,9 +28,21 @@
           <tr>
             <td>{{ s.id }}</td>
             <td>{{ s.mode.name }}</td>
-            <td>{{ s.status }}</td>
+
+            <td>{{ s.get_status_display }}</td>
+
             <td>{{ s.players_count }}</td>
-            <td>{{ s.created_at }}</td>
+
+            <!-- победитель, если игра завершена и есть Result -->
+            <td>
+              {% if s.result %}
+                {{ s.result.get_winner_side_display }}
+              {% else %}
+                —
+              {% endif %}
+            </td>
+
+            <td>{{ s.created_at|date:"d.m.Y H:i" }}</td>
           </tr>
         {% endfor %}
       </tbody>

@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Сортировка таблицы
   const setupSortableTables = () => {
-  const tables = document.querySelectorAll('.sessions-table');
+    const tables = document.querySelectorAll('.sessions-table');
 
     tables.forEach((table) => {
       const headers = table.querySelectorAll('thead th');
@@ -192,22 +192,69 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
-    // Переключение способа выдачи ролей (пилюли)
-    const assignModeInput = document.getElementById('assign-mode-input');
-    const assignModePills = document.querySelectorAll('.assign-mode-pill');
+  // Переключение способа выдачи ролей (пилюли)
+  const assignModeInput = document.getElementById('assign-mode-input');
+  const assignModePills = document.querySelectorAll('.assign-mode-pill');
 
-    if (assignModeInput && assignModePills.length) {
-      assignModePills.forEach((pill) => {
-        pill.addEventListener('click', () => {
-          const mode = pill.dataset.mode || 'random';
+  if (assignModeInput && assignModePills.length) {
+    assignModePills.forEach((pill) => {
+      pill.addEventListener('click', () => {
+        const mode = pill.dataset.mode || 'random';
 
-          assignModeInput.value = mode;
+        assignModeInput.value = mode;
 
-          assignModePills.forEach((p) => p.classList.remove('is-active'));
-          pill.classList.add('is-active');
-        });
+        assignModePills.forEach((p) => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
       });
-    }
+    });
+  }
+
+  //  бургер и меню пользователя
+
+  function setupMobileNav() {
+    const burger = document.querySelector('.burger');
+    const mainNav = document.querySelector('.main-nav');
+
+    if (!burger || !mainNav) return;
+
+    burger.addEventListener('click', () => {
+      burger.classList.toggle('burger-open');
+      mainNav.classList.toggle('main-nav-open');
+    });
+
+    // закрываем меню при клике по ссылке
+    mainNav.addEventListener('click', (evt) => {
+      if (evt.target.tagName.toLowerCase() === 'a') {
+        burger.classList.remove('burger-open');
+        mainNav.classList.remove('main-nav-open');
+      }
+    });
+  }
+
+
+  function setupUserDropdown() {
+    const btn = document.querySelector('.user-name-btn');
+    const menu = document.querySelector('.user-menu');
+
+    if (!btn || !menu) return;
+
+    btn.addEventListener('click', (evt) => {
+      evt.stopPropagation();
+      menu.classList.toggle('user-menu-open');
+    });
+
+    menu.addEventListener('click', (evt) => {
+      evt.stopPropagation();
+    });
+
+    document.addEventListener('click', () => {
+      menu.classList.remove('user-menu-open');
+    });
+  }
+
+  // запуск
 
   setupSortableTables();
+  setupMobileNav();
+  setupUserDropdown();
 });

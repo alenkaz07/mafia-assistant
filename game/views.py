@@ -55,7 +55,9 @@ def modes(request):
 def sessions_list(request):
     """Список игровых сессий."""
     sessions_qs = (
-        Session.objects.select_related("mode", "host").order_by("-id")
+        Session.objects
+        .select_related("mode", "host", "result")
+        .order_by("-id")
     )
     return render(request, "game/sessions_list.html", {"sessions": sessions_qs})
 
