@@ -10,10 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
 
 
 # Quick-start development settings - unsuitable for production
@@ -29,8 +32,10 @@ DEBUG = True
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'cabinet'     # после логина идём в личный кабинет
+LOGIN_REDIRECT_URL = 'cabinet'
 LOGOUT_REDIRECT_URL = 'game:index'
+
+TG_BOT_TOKEN = os.environ.get("TG_BOT_TOKEN", "")
 
 # Application definition
 
@@ -120,5 +125,3 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
-
-TG_BOT_TOKEN = "token"
