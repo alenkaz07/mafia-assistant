@@ -13,3 +13,4 @@ python-dotenv==1.2.1
 python-telegram-bot==21.7
 sqlparse==0.5.4
 typing_extensions==4.15.0
+whitenoise==6.11.0
