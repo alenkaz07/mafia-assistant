@@ -26,10 +26,17 @@ load_dotenv(BASE_DIR / ".env")
 SECRET_KEY = os.environ.get("SECRET_KEY", "")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
 # DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+# ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+
+DEBUG = os.environ.get("DJANGO_DEBUG", "False") == "True"
+
+if DEBUG:
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+else:
+    ALLOWED_HOSTS = ["mafia-assistant.onrender.com"]
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'cabinet'
