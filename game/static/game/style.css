@@ -1222,6 +1222,22 @@ a {
     padding: 20px;
   }
 
+  .role-modal {
+    max-height: 65vh;
+    padding: 20px 18px;
+  }
+
+  .role-modal-title {
+    font-size: 18px;
+  }
+
+  .role-modal-label,
+  .role-modal-text,
+  .role-modal-body {
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
   .sessions-table th,
   .sessions-table td {
     padding: 8px;
@@ -1258,8 +1274,17 @@ a {
   /* Кнопки на всю ширину */
   .btn-primary,
   .btn-secondary {
-    width: 100%;
     text-align: center;
+  }
+
+  /* Таблицы сессий компактнее */
+  .sessions-table {
+    font-size: 11px;
+  }
+
+  .sessions-table th,
+  .sessions-table td {
+    padding: 4px 2px;
   }
 
   .form-row-actions-inline {
