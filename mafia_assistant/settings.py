@@ -23,7 +23,7 @@ load_dotenv(BASE_DIR / ".env")
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-qgbyrph5mozv0595t855g!$u1vs_*@l0-1=m_3%#*29tt#yd8l'
+SECRET_KEY = os.environ.get("SECRET_KEY", "")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -36,6 +36,13 @@ LOGIN_REDIRECT_URL = 'cabinet'
 LOGOUT_REDIRECT_URL = 'game:index'
 
 TG_BOT_TOKEN = os.environ.get("TG_BOT_TOKEN", "")
+
+# # ID пользователя-ведущего, под которым будут создаваться сессии
+TG_BOT_HOST_USER_ID = 1 # User.id, ведущий
+
+# id режимов, чтобы бот выбирал режим осознанно
+TG_BOT_MODE_CLASSIC_ID = 1   # id режима "Классическая"
+TG_BOT_MODE_SPORT_ID = 2     # id режима "Спортивная" 10 игроков
 
 # Application definition
 

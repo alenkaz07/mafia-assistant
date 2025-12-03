@@ -46,6 +46,7 @@ class Session(models.Model):
         PLANNED = "planned", "Запланирована"
         ACTIVE = "active", "Идёт"
         FINISHED = "finished", "Завершена"
+        CANCELLED = "cancelled", "Сброшена"
 
     mode = models.ForeignKey(
         Mode,
