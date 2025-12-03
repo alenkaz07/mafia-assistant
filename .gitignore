@@ -6,3 +6,4 @@ venv/
 *.py[cod]
 # db.sqlite3
 # *.sqlite3
+staticfiles/
