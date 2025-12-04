@@ -87,16 +87,6 @@ a {
   font-size: 14px;
 }
 
-/* .user-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 2px solid #f5f5f5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-} */
-
 .user-name-link {
   color: #fff;
   text-decoration: none;
@@ -625,18 +615,10 @@ a {
   font-weight: 600;
 }
 
-/* .sessions-table tr:nth-child(even) {
-  background: #1b1b1b;
-} */
-
 /* для ведущего */
 .sessions-table tbody tr:hover {
   background: #292929;
 }
-
-/* .sessions-table-wrapper {
-  flex: 1 1 auto;
-} */
 
 .sessions-actions-column {
   flex: 0 0 260px;
@@ -771,10 +753,6 @@ a {
   max-width: 480px;
   margin: 0 auto;
 }
-
-/* .mafia-form p {
-  margin-bottom: 12px;
-} */
 
 .mafia-form .form-row {
   margin-bottom: 24px;
