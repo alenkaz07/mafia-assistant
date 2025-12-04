@@ -5,7 +5,8 @@ from django.conf import settings
 
 from asgiref.sync import sync_to_async
 from django.contrib.auth import get_user_model
-from game.models import Session, Player, Mode
+from django.utils import timezone
+from game.models import Session, Player, Mode, Phase, Result
 
 from telegram import (
     Update,
@@ -428,7 +429,7 @@ class Command(BaseCommand):
         skipped_existing: list[str] = []
         skipped_full = False
 
-        # Session для создания Player'ов
+        # Session для создания Player
         session_id = game.get("db_session_id")
         session = None
         if session_id:
@@ -672,6 +673,18 @@ class Command(BaseCommand):
                 if mode_obj is None:
                     # запасной вариант: берём первый попавшийся режим
                     mode_obj = await sync_to_async(Mode.objects.first)()
+
+                if mode_obj:
+                    min_p = mode_obj.min_players
+                    max_p = mode_obj.max_players
+        
+                    if planned < min_p or planned > max_p:
+                        await update.message.reply_text(
+                            f"Для режима «{mode_obj.name}» нужно от {min_p} до {max_p} игроков.\n"
+                            f"Сейчас указано: {planned}.",
+                            reply_markup=self._control_keyboard(self._get_game(update)),
+                        )
+                        return
 
                 if mode_obj and host_user:
                     session = await sync_to_async(Session.objects.create)(
