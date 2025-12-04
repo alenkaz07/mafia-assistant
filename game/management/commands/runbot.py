@@ -6,7 +6,7 @@ from django.conf import settings
 from asgiref.sync import sync_to_async
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-from game.models import Session, Player, Mode, Phase, Result
+from game.models import Session, Player, Mode, Phase, Result, Role
 
 from telegram import (
     Update,
@@ -55,6 +55,8 @@ class Command(BaseCommand):
     GAME_MODE_CLASSIC = "classic"
     GAME_MODE_SPORT = "sport"
 
+    MAX_PLAYERS = 20
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.games: dict[int, dict] = {}
@@ -99,6 +101,22 @@ class Command(BaseCommand):
     def _alive_players(self, game):
         """Список живых игроков."""
         return [p for p in game["players"] if p["alive"]]
+
+    def _alive_counts(self, game):
+        """
+        Подсчёт живых мафий и мирных по внутреннему состоянию бота.
+        Дон считается мафией.
+        """
+        alive_mafia = 0
+        alive_town = 0
+        for p in game["players"]:
+            if not p["alive"]:
+                continue
+            if p["role"] in (self.ROLE_MAFIA, self.ROLE_DON):
+                alive_mafia += 1
+            else:
+                alive_town += 1
+        return alive_mafia, alive_town
 
     def _censor_name(self, name: str) -> str:
         """
@@ -334,21 +352,12 @@ class Command(BaseCommand):
         Работает только в режиме random, когда бот знает роли.
 
         Возвращает строку с итогами или None, если игра не окончена.
+        Плюс кладёт в game информацию winner_side / mafia_alive / town_alive.
         """
         if not (game.get("roles_mode") == "random" and game.get("roles_assigned")):
             return None
 
-        alive_mafia = 0
-        alive_town = 0
-
-        for p in game["players"]:
-            if not p["alive"]:
-                continue
-            # Дон тоже считается мафией
-            if p["role"] in (self.ROLE_MAFIA, self.ROLE_DON):
-                alive_mafia += 1
-            else:
-                alive_town += 1
+        alive_mafia, alive_town = self._alive_counts(game)
 
         # все мафии мертвы -> победа мирных
         if alive_mafia == 0 and (alive_town > 0):
@@ -361,6 +370,9 @@ class Command(BaseCommand):
 
         # помечаем игру как завершённую
         game["phase"] = self.PHASE_FINISHED
+        game["winner_side"] = winner
+        game["mafia_alive"] = alive_mafia
+        game["town_alive"] = alive_town
 
         lines: list[str] = []
         if winner == "mafia":
@@ -381,6 +393,208 @@ class Command(BaseCommand):
             "(или другое число игроков)."
         )
         return "\n".join(lines)
+
+
+    async def _sync_roles_to_db(self, game: dict):
+        """
+        Синхронизировать роли из players в поле Player.role в БД.
+        Работает только для режима random, когда бот знает роли.
+        """
+        session_id = game.get("db_session_id")
+        if not session_id:
+            return
+
+        # соответствие внутренних кодов ролей -> названиям в таблице Role
+        code_to_role_name = {
+            self.ROLE_TOWN: "Мирный житель",
+            self.ROLE_MAFIA: "Мафия",
+            self.ROLE_DON: "Дон мафии",
+            self.ROLE_DETECTIVE: "Комиссар",
+            self.ROLE_DOCTOR: "Доктор",
+        }
+
+        def _do_sync():
+            try:
+                session = Session.objects.get(id=session_id)
+            except Session.DoesNotExist:
+                return
+
+            # кэшируем роли по имени (lower)
+            roles_by_name = {
+                r.name.lower(): r
+                for r in Role.objects.all()
+            }
+
+            for p in game["players"]:
+                code = p.get("role")
+                if not code:
+                    continue
+
+                role_name = code_to_role_name.get(code)
+                if not role_name:
+                    continue
+
+                role_obj = roles_by_name.get(role_name.lower())
+                if not role_obj:
+                    # если нет такой роли в БД — просто пропускаем
+                    continue
+
+                Player.objects.filter(
+                    session=session,
+                    name=p["name"],
+                ).update(role=role_obj)
+
+        try:
+            await sync_to_async(_do_sync)()
+        except Exception as e:
+            self.stderr.write(
+                self.style.WARNING(
+                    f"Не удалось записать роли игроков в БД: {e}"
+                )
+            )
+
+
+    async def _update_session_phase(self, game: dict, phase_code: str):
+        """
+        Синхронизируем в БД текущий круг и фазу
+        (Session.current_round / Session.current_phase),
+        чтобы это отражалось в кабинете ведущего
+        """
+        session_id = game.get("db_session_id")
+        if not session_id:
+            return
+
+        round_num = game.get("round", 1)
+
+        def _do_update():
+            try:
+                session = Session.objects.get(id=session_id)
+            except Session.DoesNotExist:
+                return
+
+            phases = list(Phase.objects.order_by("order"))
+            phase_obj = None
+            if phases:
+                if phase_code == self.PHASE_NIGHT:
+                    phase_obj = phases[0]
+                elif phase_code == self.PHASE_DAY and len(phases) >= 2:
+                    phase_obj = phases[1]
+                elif phase_code == self.PHASE_VOTE and len(phases) >= 3:
+                    phase_obj = phases[2]
+                else:
+                    phase_obj = phases[0]
+
+            session.current_round = round_num
+            session.current_phase = phase_obj
+            session.save()
+
+        try:
+            await sync_to_async(_do_update)()
+        except Exception as e:
+            self.stderr.write(
+                self.style.WARNING(f"Не удалось обновить фазу сессии в БД: {e}")
+            )
+
+    async def _set_player_dead(self, session_id: int, player_name: str, game: dict):
+        """
+        Помечаем игрока мёртвым в БД и фиксируем:
+        - fail_round  — текущий круг,
+        - fail_phase  — фазу, на которой он выбыл.
+        """
+        if not session_id or not player_name:
+            return
+
+        round_num = game.get("round", 1)
+        phase_code = game.get("phase")
+
+        def _do_update():
+            # определяем объект Phase по коду фазы бота
+            phases = list(Phase.objects.order_by("order"))
+            phase_obj = None
+            if phases:
+                if phase_code == self.PHASE_NIGHT:
+                    phase_obj = phases[0]
+                elif phase_code == self.PHASE_DAY and len(phases) >= 2:
+                    phase_obj = phases[1]
+                elif phase_code == self.PHASE_VOTE and len(phases) >= 3:
+                    phase_obj = phases[2]
+                else:
+                    phase_obj = phases[0]
+
+            update_kwargs = {
+                "status": Player.PlayerStatus.DEAD,
+                "fail_round": round_num,
+            }
+            if phase_obj:
+                update_kwargs["fail_phase"] = phase_obj
+
+            Player.objects.filter(
+                session_id=session_id,
+                name=player_name,
+            ).update(**update_kwargs)
+
+        try:
+            await sync_to_async(_do_update)()
+        except Exception as e:
+            self.stderr.write(
+                self.style.WARNING(
+                    f"Не удалось обновить Player в БД (смерть игрока): {e}"
+                )
+            )
+
+
+    async def _finish_session_in_db(self, game: dict):
+        """
+        Создать Result и пометить Session как завершенную,
+        используя winner_side / mafia_alive / town_alive из game.
+        """
+        session_id = game.get("db_session_id")
+        winner = game.get("winner_side")
+        if not session_id or not winner:
+            return
+
+        mafia_alive = game.get("mafia_alive", 0)
+        town_alive = game.get("town_alive", 0)
+        round_num = game.get("round", 1)
+
+        def _finish():
+            try:
+                session = Session.objects.select_related("result").get(id=session_id)
+            except Session.DoesNotExist:
+                return
+
+            # Если результат уже существует — просто доводим статус
+            if hasattr(session, "result"):
+                if session.status != Session.Status.FINISHED:
+                    session.status = Session.Status.FINISHED
+                    if not session.finished_at:
+                        session.finished_at = timezone.now()
+                    session.save()
+                return
+
+            winner_side = (
+                Result.WinnerSide.MAFIA if winner == "mafia" else Result.WinnerSide.TOWN
+            )
+
+            Result.objects.create(
+                session=session,
+                winner_side=winner_side,
+                rounds_count=round_num,
+                mafia_count=mafia_alive,
+                town_count=town_alive,
+            )
+
+            session.status = Session.Status.FINISHED
+            session.current_round = round_num
+            session.finished_at = timezone.now()
+            session.save()
+
+        try:
+            await sync_to_async(_finish)()
+        except Exception as e:
+            self.stderr.write(
+                self.style.WARNING(f"Не удалось сохранить результат в БД: {e}")
+            )
 
     async def _handle_players_input(self, game: dict, raw_text: str, update: Update):
         """
@@ -618,6 +832,15 @@ class Command(BaseCommand):
                 )
                 return
 
+        # жёсткий глобальный максимум для бота
+        if planned > self.MAX_PLAYERS:
+            await update.message.reply_text(
+                f"Максимум игроков в одной партии — {self.MAX_PLAYERS}.\n"
+                f"Сейчас указано: {planned}.",
+                reply_markup=self._control_keyboard(self._get_game(update)),
+            )
+            return
+
         # если режим явно указан вторым аргументом
         if len(args) >= 2:
             mode_raw = args[1].lower()
@@ -674,10 +897,11 @@ class Command(BaseCommand):
                     # запасной вариант: берём первый попавшийся режим
                     mode_obj = await sync_to_async(Mode.objects.first)()
 
+                # Проверяем players_count против min/max режима
                 if mode_obj:
                     min_p = mode_obj.min_players
                     max_p = mode_obj.max_players
-        
+
                     if planned < min_p or planned > max_p:
                         await update.message.reply_text(
                             f"Для режима «{mode_obj.name}» нужно от {min_p} до {max_p} игроков.\n"
@@ -694,7 +918,9 @@ class Command(BaseCommand):
                         players_count=planned,
                     )
                     db_session_id = session.id
-                    extra_line = f"Эта партия сохранена как сессия #{session.id} на сайте.\n"
+                    extra_line = (
+                        f"Эта партия сохранена как сессия #{session.id} на сайте.\n"
+                    )
         except Exception as e:
             # Не падаем, просто пишем предупреждение в консоль
             self.stderr.write(
@@ -722,6 +948,9 @@ class Command(BaseCommand):
             "db_session_id": db_session_id,
             "game_mode": game_mode,
             "adding_players": False,
+            "winner_side": None,
+            "mafia_alive": 0,
+            "town_alive": 0,
         }
         self.games[chat_id] = game
 
@@ -873,9 +1102,11 @@ class Command(BaseCommand):
         session_id = game.get("db_session_id")
         if session_id:
             try:
-                session = await sync_to_async(Session.objects.get)(id=session_id)
-                session.status = Session.Status.ACTIVE
-                await sync_to_async(session.save)()
+                def _activate():
+                    session = Session.objects.get(id=session_id)
+                    session.status = Session.Status.ACTIVE
+                    session.save()
+                await sync_to_async(_activate)()
             except Exception as e:
                 self.stderr.write(
                     self.style.WARNING(f"Не удалось обновить статус Session: {e}")
@@ -886,6 +1117,9 @@ class Command(BaseCommand):
             self._assign_roles_random(game)
             game["phase"] = self.PHASE_NIGHT
             game["round"] = 1
+
+            # синхронизируем роли в БД
+            await self._sync_roles_to_db(game)
 
             # показываем ведущему роли
             lines = ["Роли выданы случайно (НЕ показывай этот список игрокам):", ""]
@@ -902,6 +1136,9 @@ class Command(BaseCommand):
                 reply_markup=self._control_keyboard(game),
             )
 
+            # синхронизируем фазу/круг в БД
+            await self._update_session_phase(game, self.PHASE_NIGHT)
+
             # 2) сразу даём подробные подсказки для НОЧИ (круг 1)
             await update.message.reply_text(
                 self._night_instructions_text(game),
@@ -913,6 +1150,8 @@ class Command(BaseCommand):
             game["roles_assigned"] = False
             game["phase"] = self.PHASE_NIGHT
             game["round"] = 1
+
+            await self._update_session_phase(game, self.PHASE_NIGHT)
 
             await update.message.reply_text(
                 "Режим «карточки»: роли уже выданы офлайн, бот их не знает.\n"
@@ -1238,20 +1477,10 @@ class Command(BaseCommand):
         # помечаем игрока "выбыл"
         player["alive"] = False
 
-        # обновляем статус игрока в БД
+        # фиксируем смерть в БД с кругом/фазой
         session_id = game.get("db_session_id")
         if session_id:
-            try:
-                await sync_to_async(
-                    Player.objects.filter(
-                        session_id=session_id,
-                        name=player["name"],
-                    ).update
-                )(status=Player.PlayerStatus.DEAD)
-            except Exception as e:
-                self.stderr.write(
-                    self.style.WARNING(f"Не удалось обновить Player в БД: {e}")
-                )
+            await self._set_player_dead(session_id, player["name"], game)
 
         await update.message.reply_text(
             f"По итогам голосования из игры выбывает: {player['name']}.",
@@ -1261,19 +1490,8 @@ class Command(BaseCommand):
         # Проверяем победу после голосования
         win_text = self._check_win_and_build_message(game)
         if win_text and update.message:
-            # если игра закончилась — пометим Session в БД как завершённую
-            session_id = game.get("db_session_id")
-            if session_id:
-                try:
-                    session = await sync_to_async(Session.objects.get)(id=session_id)
-                    session.status = Session.Status.FINISHED
-                    await sync_to_async(session.save)()
-                except Exception as e:
-                    self.stderr.write(
-                        self.style.WARNING(
-                            f"Не удалось пометить Session как завершённую: {e}"
-                        )
-                    )
+            # сохраняем результат в БД
+            await self._finish_session_in_db(game)
 
             await update.message.reply_text(
                 win_text,
@@ -1300,6 +1518,9 @@ class Command(BaseCommand):
         if game["phase"] is None:
             game["phase"] = self.PHASE_NIGHT
             game["round"] = 1
+
+            await self._update_session_phase(game, self.PHASE_NIGHT)
+
             await update.message.reply_text(
                 self._night_instructions_text(game),
                 reply_markup=self._control_keyboard(game),
@@ -1338,17 +1559,7 @@ class Command(BaseCommand):
             # Если кто-то погиб — синхронизируем в БД
             session_id = game.get("db_session_id")
             if killed_player_name and session_id:
-                try:
-                    await sync_to_async(
-                        Player.objects.filter(
-                            session_id=session_id,
-                            name=killed_player_name,
-                        ).update
-                    )(status=Player.PlayerStatus.DEAD)
-                except Exception as e:
-                    self.stderr.write(
-                        self.style.WARNING(f"Не удалось обновить Player в БД: {e}")
-                    )
+                await self._set_player_dead(session_id, killed_player_name, game)
 
             # очистить ночные выборы
             game["pending_kill"] = None
@@ -1358,6 +1569,8 @@ class Command(BaseCommand):
             game["phase"] = self.PHASE_DAY
 
             day_round = game.get("round", 1)
+
+            await self._update_session_phase(game, self.PHASE_DAY)
 
             await update.message.reply_text(
                 f"🌞 День, круг {day_round}.\n"
@@ -1370,22 +1583,7 @@ class Command(BaseCommand):
             # Проверяем победу после ночи
             win_text = self._check_win_and_build_message(game)
             if win_text and update.message:
-                # если игра закончилась — пометим Session в БД как завершённую
-                session_id = game.get("db_session_id")
-                if session_id:
-                    try:
-                        session = await sync_to_async(Session.objects.get)(
-                            id=session_id
-                        )
-                        session.status = Session.Status.FINISHED
-                        await sync_to_async(session.save)()
-                    except Exception as e:
-                        self.stderr.write(
-                            self.style.WARNING(
-                                f"Не удалось пометить Session как завершённую: {e}"
-                            )
-                        )
-
+                await self._finish_session_in_db(game)
                 await update.message.reply_text(
                     win_text,
                     reply_markup=self._control_keyboard(game),
@@ -1395,6 +1593,8 @@ class Command(BaseCommand):
         # Переход: ДЕНЬ -> ГОЛОСОВАНИЕ
         if phase == self.PHASE_DAY:
             game["phase"] = self.PHASE_VOTE
+
+            await self._update_session_phase(game, self.PHASE_VOTE)
 
             await update.message.reply_text(
                 f"🗳 Голосование, круг {game['round']}.\n\n"
@@ -1413,6 +1613,9 @@ class Command(BaseCommand):
         if phase == self.PHASE_VOTE:
             game["round"] += 1
             game["phase"] = self.PHASE_NIGHT
+
+            await self._update_session_phase(game, self.PHASE_NIGHT)
+
             await update.message.reply_text(
                 self._night_instructions_text(game),
                 reply_markup=self._control_keyboard(game),
@@ -1451,15 +1654,16 @@ class Command(BaseCommand):
 
         if session_id:
             try:
-                session = await sync_to_async(Session.objects.get)(id=session_id)
-                # Статус CANCELLED.
-                status_cancel = getattr(
-                    Session.Status,
-                    "CANCELLED",
-                    Session.Status.FINISHED,
-                )
-                session.status = status_cancel
-                await sync_to_async(session.save)()
+                def _cancel():
+                    session = Session.objects.get(id=session_id)
+                    status_cancel = getattr(
+                        Session.Status,
+                        "CANCELLED",
+                        Session.Status.FINISHED,
+                    )
+                    session.status = status_cancel
+                    session.save()
+                await sync_to_async(_cancel)()
             except Exception as e:
                 self.stderr.write(
                     self.style.WARNING(
@@ -1681,22 +1885,10 @@ class Command(BaseCommand):
             # помечаем игрока "выбыл"
             player["alive"] = False
 
-            # обновляем статус игрока в БД
+            # фиксируем смерть в БД с кругом/фазой
             session_id = game.get("db_session_id")
             if session_id:
-                try:
-                    await sync_to_async(
-                        Player.objects.filter(
-                            session_id=session_id,
-                            name=player["name"],
-                        ).update
-                    )(status=Player.PlayerStatus.DEAD)
-                except Exception as e:
-                    self.stderr.write(
-                        self.style.WARNING(
-                            f"Не удалось обновить Player в БД: {e}"
-                        )
-                    )
+                await self._set_player_dead(session_id, player["name"], game)
 
             # сообщение вместо инлайн-кнопок
             await query.edit_message_text(
@@ -1706,19 +1898,7 @@ class Command(BaseCommand):
             # Проверяем победу
             win_text = self._check_win_and_build_message(game)
             if win_text:
-                if session_id:
-                    try:
-                        session = await sync_to_async(Session.objects.get)(
-                            id=session_id
-                        )
-                        session.status = Session.Status.FINISHED
-                        await sync_to_async(session.save)()
-                    except Exception as e:
-                        self.stderr.write(
-                            self.style.WARNING(
-                                f"Не удалось пометить Session как завершённую: {e}"
-                            )
-                        )
+                await self._finish_session_in_db(game)
 
                 # отдельным сообщением — итоги и клавиатура
                 await query.message.reply_text(
