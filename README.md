@@ -14,6 +14,14 @@
 - кабинет ведущего и кабинет игрока;
 - Telegram-бот для управления партией.
 
+## Технологии
+
+- Python 3.13.3;
+- Django 6.0;
+- SQLite (по умолчанию);
+- `python-telegram-bot` *Version: 21.7* для Telegram-бота;
+- HTML + CSS.
+
 <!-- # Mafia-assistant
 
 Python 3.12.3
