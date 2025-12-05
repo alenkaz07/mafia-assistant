@@ -22,32 +22,22 @@
 - `python-telegram-bot` *Version: 21.7* для Telegram-бота;
 - HTML + CSS.
 
-<!-- # Mafia-assistant
+## Установка и запуск (локально)
 
-Python 3.12.3
+```bash
+git clone git@github.com:alenkaz07/mafia-assistant.git
+cd mafia-assistant
 
-``` bash
-python3 -m venv venv
+python -m venv venv
 source venv/bin/activate
-```
+# Windows: venv\Scripts\activate
 
-``` bash
-python manage.py makemigrations
+pip install -r requirements.txt
+
 python manage.py migrate
 python manage.py createsuperuser
+
 python manage.py runserver
 ```
 
-![](./img/1.png)
-
->http://127.0.0.1:8000/
-
-``` bash
-python manage.py makemigrations
-python manage.py migrate
-python manage.py runserver
-```
-
-![](./img/2.png)
-
->http://127.0.0.1:8000/admin -->
+Приложение будет доступно по адресу http://localhost:8000/
