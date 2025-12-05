@@ -14,55 +14,170 @@
       Структура разделов и быстрые ссылки по веб-сервису «Мафия-ассистент».
   </p>
 
-  <h2 class="sitemap-section-title">Основные страницы</h2>
-  <ul class="sitemap-list">
-    <li>
-      <a href="{% url 'game:index' %}">Главная</a> — баннер, статистика и быстрые переходы.
-    </li>
-    <li>
-      <a href="{% url 'game:rules' %}">Правила игры</a> — описание процесса игры «Мафия».
-    </li>
-    <li>
-      <a href="{% url 'game:sitemap' %}">Карта сайта</a> — текущая страница со структурой сервиса.
-    </li>
-  </ul>
+  <div class="sitemap-layout">
+    <!-- Колонка 1 -->
+    <section class="sitemap-card">
+      <h2 class="sitemap-section-title">Основные страницы</h2>
+      <ul class="sitemap-list">
+        <li class="sitemap-item">
+          <span class="sitemap-bullet"></span>
+          <div class="sitemap-item-body">
+            <a href="{% url 'game:index' %}" class="sitemap-link">Главная</a>
+            <p class="sitemap-item-desc">
+              Баннер, краткая статистика и быстрые переходы к основным разделам.
+            </p>
+          </div>
+        </li>
+        <li class="sitemap-item">
+          <span class="sitemap-bullet"></span>
+          <div class="sitemap-item-body">
+            <a href="{% url 'game:rules' %}" class="sitemap-link">Правила игры</a>
+            <p class="sitemap-item-desc">
+              Подробное описание процесса игры «Мафия» для новых и опытных игроков.
+            </p>
+          </div>
+        </li>
+        <li class="sitemap-item">
+          <span class="sitemap-bullet"></span>
+          <div class="sitemap-item-body">
+            <a href="{% url 'game:sitemap' %}" class="sitemap-link">Карта сайта</a>
+            <p class="sitemap-item-desc">
+              Текущая страница с обзором структуры сервиса и всех ключевых разделов.
+            </p>
+          </div>
+        </li>
+      </ul>
+    </section>
 
-  <h2 class="sitemap-section-title">Роли и режимы</h2>
-  <ul class="sitemap-list">
-    <li>
-      <a href="{% url 'game:roles' %}">Роли</a> — список ролей с кратким и полным описанием.
-    </li>
-    <li>
-      <a href="{% url 'game:modes' %}">Режимы игры</a> — варианты проведения и лимиты игроков.
-    </li>
-  </ul>
+    <section class="sitemap-card">
+      <h2 class="sitemap-section-title">Роли и режимы</h2>
+      <ul class="sitemap-list">
+        <li class="sitemap-item">
+          <span class="sitemap-bullet"></span>
+          <div class="sitemap-item-body">
+            <a href="{% url 'game:roles' %}" class="sitemap-link">Роли</a>
+            <p class="sitemap-item-desc">
+              Список ролей с кратким и полным описанием, особенностями и подсказками.
+            </p>
+          </div>
+        </li>
+        <li class="sitemap-item">
+          <span class="sitemap-bullet"></span>
+          <div class="sitemap-item-body">
+            <a href="{% url 'game:modes' %}" class="sitemap-link">Режимы игры</a>
+            <p class="sitemap-item-desc">
+              Варианты проведения игр, ограничения по количеству игроков и рекомендации.
+            </p>
+          </div>
+        </li>
+      </ul>
+    </section>
 
-  <h2 class="sitemap-section-title">Турниры и сессии</h2>
-  <ul class="sitemap-list">
-    <li>
-      <a href="{% url 'game:sessions_list' %}">Список сессий / турниров</a> — сыгранные и запланированные партии.
-    </li>
-  </ul>
+    <!-- Колонка 2 -->
+    <section class="sitemap-card">
+      <h2 class="sitemap-section-title">Турниры и сессии</h2>
+      <ul class="sitemap-list">
+        <li class="sitemap-item">
+          <span class="sitemap-bullet"></span>
+          <div class="sitemap-item-body">
+            <a href="{% url 'game:sessions_list' %}" class="sitemap-link">
+              Список сессий / турниров
+            </a>
+            <p class="sitemap-item-desc">
+              Все сыгранные и запланированные партии, удобный список для просмотра.
+            </p>
+          </div>
+        </li>
+      </ul>
+    </section>
 
-  <h2 class="sitemap-section-title">Кабинет ведущего</h2>
-  <ul class="sitemap-list">
-    <li>
-      <a href="{% url 'game:host_sessions' %}">Кабинет ведущего</a> — управление своими сессиями.
-    </li>
-    <li>
-      Управление конкретной сессией:
-      <span class="sitemap-url">/host/sessions/&lt;session_id&gt;/</span>
-    </li>
-    <li>
-      Добавление игрока в сессию:
-      <span class="sitemap-url">/host/sessions/&lt;session_id&gt;/players/add/</span>
-    </li>
-  </ul>
+    <section class="sitemap-card">
+      <h2 class="sitemap-section-title">Кабинет ведущего</h2>
+      <ul class="sitemap-list">
+        <li class="sitemap-item">
+          <span class="sitemap-bullet"></span>
+          <div class="sitemap-item-body">
+            <a href="{% url 'game:host_sessions' %}" class="sitemap-link">
+              Кабинет ведущего
+            </a>
+            <p class="sitemap-item-desc">
+              Управление своими сессиями: статусы, переход по фазам, добавление игроков.
+            </p>
+          </div>
+        </li>
+        <li class="sitemap-item">
+          <span class="sitemap-bullet"></span>
+          <div class="sitemap-item-body">
+            <span class="sitemap-link">Управление конкретной сессией</span>
+            <p class="sitemap-item-desc">
+              <span class="sitemap-url">/host/sessions/&lt;session_id&gt;/</span><br>
+              Страница одной партии с возможностью следить за прогрессом.
+            </p>
+          </div>
+        </li>
+        <li class="sitemap-item">
+          <span class="sitemap-bullet"></span>
+          <div class="sitemap-item-body">
+            <span class="sitemap-link">Добавление игрока в сессию</span>
+            <p class="sitemap-item-desc">
+              <span class="sitemap-url">/host/sessions/&lt;session_id&gt;/players/add/</span><br>
+              Форма для добавления новых игроков в выбранную сессию.
+            </p>
+          </div>
+        </li>
+      </ul>
+    </section>
 
-  <h2 class="sitemap-section-title">Служебные страницы</h2>
-  <ul class="sitemap-list">
-    <li>
-      Страница 404 (не найдена) — показывается при переходе на несуществующий адрес.
-    </li>
-  </ul>
+    <section class="sitemap-card">
+      <h2 class="sitemap-section-title">Служебные страницы</h2>
+      <ul class="sitemap-list">
+        <li class="sitemap-item">
+          <span class="sitemap-bullet"></span>
+          <div class="sitemap-item-body">
+            <span class="sitemap-link">Страница 404 (не найдена)</span>
+            <p class="sitemap-item-desc">
+              Отображается при переходе на несуществующий адрес.
+              Содержит краткое объяснение и ссылки для возврата.
+            </p>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <section class="sitemap-card">
+      <h2 class="sitemap-section-title">Пользователи</h2>
+      <ul class="sitemap-list">
+        <li class="sitemap-item">
+          <span class="sitemap-bullet"></span>
+          <div class="sitemap-item-body">
+            <a href="{% url 'login' %}" class="sitemap-link">Вход</a>
+            <p class="sitemap-item-desc">
+              Авторизация зарегистрированного пользователя.
+            </p>
+          </div>
+        </li>
+
+        <li class="sitemap-item">
+          <span class="sitemap-bullet"></span>
+          <div class="sitemap-item-body">
+            <a href="{% url 'register' %}" class="sitemap-link">Регистрация</a>
+            <p class="sitemap-item-desc">
+              Создание нового аккаунта.
+            </p>
+          </div>
+        </li>
+
+        <li class="sitemap-item">
+          <span class="sitemap-bullet"></span>
+          <div class="sitemap-item-body">
+            <a href="{% url 'game:player_cabinet' %}" class="sitemap-link">Кабинет игрока</a>
+            <p class="sitemap-item-desc">
+              Приветствие и информация для просмотра.
+            </p>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+  </div>
 {% endblock %}

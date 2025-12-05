@@ -28,7 +28,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "")
 DEBUG = os.environ.get("DJANGO_DEBUG", "False") == "True"
 
 if DEBUG:
-    ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.1.18"]
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.1.14"]
 else:
     ALLOWED_HOSTS = ["mafia-assistant.onrender.com"]
 
