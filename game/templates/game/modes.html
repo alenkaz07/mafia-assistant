@@ -1,0 +1,60 @@
+{% extends 'game/base.html' %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumbs">
+    <a href="{% url 'game:index' %}" class="crumb">Главная</a>
+    <span class="crumb-sep">/</span>
+    <span class="crumb crumb-active">Режимы</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+  <h1 class="page-title">Режимы игры</h1>
+  <p class="page-subtitle">
+      Доступные варианты проведения игры «Мафия».
+  </p>
+
+  <div class="mode-grid">
+    {% for mode in modes %}
+      <article class="mode-card" data-mode-card>
+        <h2 class="mode-card-title">{{ mode.name }}</h2>
+
+        <p class="mode-card-excerpt">
+          <span class="mode-card-label">Описание:</span>
+          {{ mode.description|truncatechars:160 }}
+        </p>
+
+        <p class="mode-card-players">
+          {{ mode.min_players }}–{{ mode.max_players }} игроков
+        </p>
+
+        <div class="mode-card-full" hidden>
+          <p>
+            {{ mode.description|linebreaksbr }}
+          </p>
+          <p class="mode-card-players-modal">
+            {{ mode.min_players }}–{{ mode.max_players }} игроков
+          </p>
+        </div>
+        <button type="button" class="card-more-btn">
+          Читать далее
+          <span class="card-more-arrow">→</span>
+        </button>
+      </article>
+    {% empty %}
+      <p>Режимы пока не добавлены.</p>
+    {% endfor %}
+  </div>
+
+  <div class="role-modal-backdrop" id="mode-modal">
+    <div class="role-modal">
+      <button type="button" class="role-modal-close" id="mode-modal-close">×</button>
+      <h2 class="role-modal-title" id="mode-modal-title"></h2>
+
+      <div class="role-modal-body">
+        <p class="role-modal-label">Описание:</p>
+        <div class="role-modal-text" id="mode-modal-text"></div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

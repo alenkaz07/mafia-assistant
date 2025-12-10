@@ -1,0 +1,266 @@
+{% extends 'game/base.html' %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumbs">
+    <a href="{% url 'game:index' %}" class="crumb">Главная</a>
+    <span class="crumb-sep">/</span>
+    <a href="{% url 'game:host_sessions' %}" class="crumb">Кабинет ведущего</a>
+    <span class="crumb-sep">/</span>
+    <span class="crumb crumb-active">Сессия #{{ session.id }}</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+  <!-- Заголовок (панель ведущего) -->
+  <h1 class="page-title">
+    Сессия #{{ session.id }} ({{ session.mode.name }})
+  </h1>
+  <p class="page-subtitle">
+    Режим: {{ session.mode.name }}
+  </p>
+  <p class="page-subtitle">
+    Круг: {{ session.current_round }} ·
+    Фаза: {{ session.current_phase.name|default:"—" }} ·
+    Статус: {{ session.get_status_display }}
+  </p>
+
+  {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <!-- Если сессия ещё не запущена — форма Начать игру -->
+  {% if session.status == 'planned' %}
+  <section class="form-section">
+    <div class="form-card">
+      <h2>Добавьте игроков</h2>
+      <p class="page-subtitle">
+        Выберите способ выдачи ролей и запустите первую ночь.
+      </p>
+
+      <p class="page-subtitle">
+        Запланировано игроков: {{ session.players_count }}.
+        Сейчас добавлено: {{ players|length }}.
+      </p>
+
+      <form method="post"
+            action="{% url 'game:session_start' session.id %}"
+            class="mafia-form">
+        {% csrf_token %}
+
+      <!-- выбор способа выдачи ролей -->
+      <div class="form-row assign-mode-row">
+        <span class="form-row-title">Способ выдачи ролей</span>
+
+        <div class="assign-mode-pills">
+          <button type="button"
+                  class="assign-mode-pill is-active"
+                  data-mode="random">
+            <span class="assign-mode-pill-title">Роли раздаёт бот</span>
+            <span class="assign-mode-pill-sub">
+              Роли распределяются автоматически (рандомно)
+            </span>
+          </button>
+
+          <button type="button"
+                  class="assign-mode-pill"
+                  data-mode="manual">
+            <span class="assign-mode-pill-title">Карточки</span>
+            <span class="assign-mode-pill-sub">
+              Роли уже выданы по карточкам (я сам назначу роли)
+            </span>
+          </button>
+        </div>
+        <!-- сюда пишем выбранный режим (random / manual) -->
+          <input type="hidden"
+                 name="assign_mode"
+                 id="assign-mode-input"
+                 value="random">
+       </div>
+
+         <!-- Кнопки в одну строку -->
+        <div class="form-row form-row-actions-inline">
+          <a href="{% url 'game:player_add' session.id %}"
+             class="btn-secondary btn-small">
+            Добавить игрока
+          </a>
+
+          <button type="submit"
+                  class="btn-primary btn-small"
+                  {% if players|length < 6 %}disabled{% endif %}>
+            Начать игру
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+{% endif %}
+
+
+  <!-- маленькое сообщение, когда игра только что стартовала
+  {% if session.status == 'active' and session.current_round == 1 and session.current_phase %}
+    <ul>
+      <li>Игра начата.</li>
+    </ul>
+  {% endif %} -->
+
+  <!-- Таблица игроков + правая колонка -->
+  <div class="sessions-panel" style="margin-top: 32px;">
+    <div class="sessions-table-wrapper" style="flex: 1 1 auto;">
+      <table class="sessions-table">
+        <thead>
+          <tr>
+            <th data-sort-type="number">№ места</th>
+            <th data-sort-type="text">Имя</th>
+            <th data-sort-type="text">Роль</th>
+            <th data-sort-type="text">Статус</th>
+            <th data-sort-type="text">Фаза выбывания</th>
+            <th data-sort-type="number">Круг выбывания</th>
+            <th data-sort-type="text" class="actions-header">Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for player in players %}
+            <tr>
+              <td>{{ player.seat_number|default:"—" }}</td>
+              <td>{{ player.name }}</td>
+              <td>
+                {% if player.role %}
+                  {{ player.role.name }}
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+              <td>{{ player.get_status_display }}</td>
+              <td>
+                {% if player.fail_phase %}
+                  {{ player.fail_phase.name }}
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+              <td>
+                {% if player.fail_round %}
+                  {{ player.fail_round }}
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+              <td class="actions-cell">
+                <a href="{% url 'game:player_toggle_status' session.id player.id %}"
+                   class="btn-secondary btn-small">
+                  {% if player.status == 'alive' %}
+                    Пометить как выбывшего
+                  {% else %}
+                    Вернуть в игру
+                  {% endif %}
+                </a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7">Игроков пока нет. Добавьте как минимум 6 игроков.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Правая колонка: подсказки + кнопка следующей фазы -->
+    <aside class="sessions-actions-column">
+      {% if session.status == 'active' %}
+        {% if session.current_phase %}
+          {% with phase_name=session.current_phase.name|lower %}
+            <div class="phase-hints-card">
+              {% if 'ноч' in phase_name %}
+                <p class="phase-hints-title">Ночная последовательность</p>
+                <ol class="phase-hints-list">
+                  <li>Просыпается комиссар и выбирает, кого проверить.</li>
+                  <li>Комиссар засыпает.</li>
+                  <li>Просыпается мафия и выбирает жертву.</li>
+                  <li>Мафия засыпает, остаётся дон и выбирает, кого проверить.</li>
+                  <li>Дон засыпает, просыпается доктор и выбирает, кого лечить.</li>
+                </ol>
+
+              {% elif 'день' in phase_name %}
+                <p class="phase-hints-title">День</p>
+
+                {% if night_victims %}
+                  <p class="phase-hints-text">
+                    Ночью убит(а):
+                    {% for p in night_victims %}
+                      {{ p.name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}.
+                  </p>
+                {% else %}
+                  <p class="phase-hints-text">
+                    Ночью никто не убит.
+                  </p>
+                {% endif %}
+
+                <p class="phase-hints-text">
+                  Объявите результат и дайте игрокам время на обсуждение,
+                  затем переходите к голосованию.
+                </p>
+
+              {% elif 'голос' in phase_name %}
+                <p class="phase-hints-title">Голосование</p>
+                <p class="phase-hints-text">
+                  Озвучьте кандидатов, соберите голоса и пометьте выбывшего игрока.
+                </p>
+
+              {% else %}
+                <p class="phase-hints-title">Текущая фаза</p>
+                <p class="phase-hints-text">
+                  Управляйте игрой и переходите к следующей фазе по готовности.
+                </p>
+              {% endif %}
+            </div>
+          {% endwith %}
+        {% endif %}
+
+        <form method="post" class="phase-next-form">
+          {% csrf_token %}
+          <button type="submit" name="advance_phase" class="btn-secondary btn-small">
+            Следующая фаза
+          </button>
+        </form>
+
+      {% elif session.status == 'finished' and session.result %}
+        <div class="phase-hints-card">
+          <p class="phase-hints-title">Игра завершена</p>
+          <p class="phase-hints-text">Победили: {{ session.result.get_winner_side_display }}</p>
+          <p class="phase-hints-text">Кругов: {{ session.result.rounds_count }}</p>
+          <p class="phase-hints-text">Мафия в конце: {{ session.result.mafia_count }}</p>
+          <p class="phase-hints-text">Мирные в конце: {{ session.result.town_count }}</p>
+        </div>
+      {% endif %}
+    </aside>
+  </div>
+
+  <!-- Кнопки снизу -->
+  <div class="host-actions">
+    {% if session.status == 'planned' %}
+      <a href="{% url 'game:player_add' session.id %}" class="btn-secondary btn-small">
+        Добавить игрока
+      </a>
+    {% else %}
+      <a href="{% url 'game:player_add' session.id %}" class="btn-secondary btn-small">
+        Добавить ещё игрока
+      </a>
+    {% endif %}
+
+    <form method="post"
+          action="{% url 'game:session_delete' session.id %}"
+          style="display:inline-block; margin-left: 12px;"
+          onsubmit="return confirm('Удалить эту сессию со всеми игроками и результатами?');">
+        {% csrf_token %}
+        <button type="submit" class="btn-secondary btn-small">
+          Удалить сессию
+        </button>
+    </form>
+  </div>
+{% endblock %}
